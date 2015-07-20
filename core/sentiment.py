@@ -23,15 +23,9 @@ ishdict = tp.get_txt_data('../data/ish.txt', 'lines')
 insufficientdict = tp.get_txt_data('../data/insufficiently.txt', 'lines')
 inversedict = tp.get_txt_data('../data/inverse.txt', 'lines')
 
+
+
 # Load dataset
-#review = tp.get_excel_data("../data/review_set.xlsx", 1, 1, "data")
-#review_txt = open('reivew.txt', 'wb+')
-#for r in review:
-#    print r
-#    review_txt.write(r)
-#    review_txt.write('\n')
-#
-#review_txt.close()
 
 review_txt1 = open('reivew.txt', 'rb')
 review = []
