@@ -147,6 +147,7 @@ def store_sentiment_dictionary_score(review_set, storepath):
     f.close()
 
 
+
 if __name__ == '__main__':
     posdict = tp.get_txt_data("../data/posdict.txt","lines")
     negdict = tp.get_txt_data("../data/negdict.txt","lines")
@@ -164,4 +165,5 @@ if __name__ == '__main__':
     for index, score in enumerate(review_score):
         #print review[index], score
         print score
+
 
