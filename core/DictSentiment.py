@@ -52,52 +52,47 @@ class DictSentiment:
             neg_count = negcount
         return [pos_count, neg_count]
 
-
-# 3.1 Single review's positive and negative score
-# Function of calculating review's every sentence sentiment score
-    def sumup_sentence_sentiment_score(self, score_list):
-        score_array = np.array(score_list) # Change list to a numpy array
-        Pos = np.sum(score_array[:,0]) # Compute positive score
-        Neg = np.sum(score_array[:,1])
-        AvgPos = np.mean(score_array[:,0]) # Compute review positive average score, average score = score/sentence number
-        AvgNeg = np.mean(score_array[:,1])
-        StdPos = np.std(score_array[:,0]) # Compute review positive standard deviation score
-        StdNeg = np.std(score_array[:,1])
-        return [Pos, Neg, AvgPos, AvgNeg, StdPos, StdNeg]
-
     def stopWordFilter(self, words):
         fil = [word for word in words if word not in self.stopwords and word != ' ']
         return fil
 
-    def get_single_sent_count(self, cuted_sents):
+    def cut_sentences_words(self, review):
+        sent_words = []
+        cuted_review = tp.cut_sentence_2(review)
+        for sent in cuted_review:
+            seg_sent = tp.segmentation(sent, 'list')
+            seg_sent = self.stopWordFilter(seg_sent)
+            sent_words.append(seg_sent)
+        return sent_words
+
+
+    def get_single_sent_count(self, sentences_words):
         single_review_senti_score = []
         posdict = self.posdict
         negdict = self.negdict
-        for sent in cuted_sents:
-            seg_sent = tp.segmentation(sent, 'list')
-            seg_sent = self.stopWordFilter(seg_sent)
+        for words in sentences_words:
             i = 0 # word position counter
             a = 0 # sentiment word position
             poscount = 0 # count a positive word
             negcount = 0 # count a negative word
 
             #match 用于表示程度
-            for word in seg_sent:
-                print '...', word
+            for word in words:
+                #print '...', word
                 if word in posdict:
                    poscount += 1
-                   for w in seg_sent[a:i]:
+                   for w in words[a:i]:
                       poscount = self.match(w, poscount)
                    a = i + 1
 
                 elif word in negdict:
                    negcount += 1
-                   for w in seg_sent[a:i]:
+                   for w in words[a:i]:
                     negcount = self.match(w, negcount)
                    a = i + 1
 
                 elif word == "！".decode('utf8') or word == "!".decode('utf8'):
-                   for w2 in seg_sent[::-1]:
+                   for w2 in words[::-1]:
                        if w2 in posdict:
                            poscount += 2
                            break
@@ -106,53 +101,21 @@ class DictSentiment:
                            break
                 i += 1
             single_review_senti_score.append(self.transform_to_positive_num(poscount, negcount))
-        return single_review_senti_score
+        score_array = np.array(single_review_senti_score)
+        pos_score = np.sum(score_array[:, 0])
+        neg_score = np.sum(score_array[:, 1])
+        return [pos_score, neg_score]
 
     def single_review_sentiment_score(self, review):
-        cuted_review = tp.cut_sentence_2(review)
-        single_review_senti_score = self.get_single_sent_count(cuted_review)
-        review_sentiment_score = self.sumup_sentence_sentiment_score(single_review_senti_score)
-        return review_sentiment_score[0], review_sentiment_score[1]
+        sentences_words = self.cut_sentences_words(review)
+        scores = self.get_single_sent_count(sentences_words)
+        return scores[0], scores[1]
 
-# 3.2 All review dataset's sentiment score
     def sentence_sentiment_score(self, dataset):
         dataset = dataset[1:10]
-        cuted_review = []
-        for cell in dataset:
-            cuted_review.append(tp.cut_sentence_2(cell))
-        single_review_count = []
-        all_review_count = []
-        for review in cuted_review:
-            single_review_count = self.get_single_sent_count(review)
-            all_review_count.append(single_review_count)
-        return all_review_count
-
-# Compute a single review's sentiment score
-    def all_review_sentiment_score(self, senti_score_list):
-        score = []
-        i = 0
-        for review in senti_score_list:
-            #print i, review
-            score_array = np.array(review)
-            i =  i + 1
-            #import pdb
-            #pdb.set_trace()
-            Pos = np.sum(score_array[:,0])
-            Neg = np.sum(score_array[:,1])
-            AvgPos = np.mean(score_array[:,0])
-            AvgNeg = np.mean(score_array[:,1])
-            StdPos = np.std(score_array[:,0])
-            StdNeg = np.std(score_array[:,1])
-            score.append([Pos, Neg, AvgPos, AvgNeg, StdPos, StdNeg])
-        return score
-
-# 4. Store sentiment dictionary features
-    def store_sentiment_dictionary_score(self, review_set, storepath):
-        sentiment_score = all_review_sentiment_score(sentence_sentiment_score(review_set))
-        f = open(storepath,'w')
-        for i in sentiment_score:
-            f.write(str(i[0])+'\t'+str(i[1])+'\t'+str(i[2])+'\t'+str(i[3])+'\t'+str(i[4])+'\t'+str(i[5])+'\n')
-        f.close()
+        for review in dataset:
+            scores = self.single_review_sentiment_score(review)
+            print scores[0], scores[1]
 
 if __name__ == '__main__':
     review = tp.get_txt_data('reivew.txt', 'lines')
@@ -160,9 +123,6 @@ if __name__ == '__main__':
 
     print len(review)
     print dict_sentiment.single_review_sentiment_score(review[0])
-    review_score = dict_sentiment.all_review_sentiment_score(dict_sentiment.sentence_sentiment_score(review))
-    for index, score in enumerate(review_score):
-        #print review[index], score
-        print score
+    dict_sentiment.sentence_sentiment_score(review)
 
 
