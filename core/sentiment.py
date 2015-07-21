@@ -10,57 +10,19 @@ Sentiment analysis based on sentiment dictionary.
 import numpy as np
 import textprocessing as tp
 
-# 1. Load dictionary and dataset
-# Load sentiment dictionary
-posdict = tp.get_txt_data("../data/posdict.txt","lines")
-negdict = tp.get_txt_data("../data/negdict.txt","lines")
-
-# Load adverbs of degree dictionary
-mostdict = tp.get_txt_data('../data/most.txt', 'lines')
-verydict = tp.get_txt_data('../data/very.txt', 'lines')
-moredict = tp.get_txt_data('../data/more.txt', 'lines')
-ishdict = tp.get_txt_data('../data/ish.txt', 'lines')
-insufficientdict = tp.get_txt_data('../data/insufficiently.txt', 'lines')
-inversedict = tp.get_txt_data('../data/inverse.txt', 'lines')
-
-
-
-# Load dataset
-
-review_txt1 = open('reivew.txt', 'rb')
-review = []
-while True:
-    line = review_txt1.readline()
-    line = line.strip()
-    if len(line) == 0 :
-        break
-    line = line.decode('utf8')
-    print '------- ', line
-    review.append(line)
-
-#review = tp.get_txt_data('reivew.txt', 'lines')
-#i = 0
-#for r in review:
-#    i = i + 1
-#    print i, r
-#
-print len(review)
-
-
-
 # 2. Sentiment dictionary analysis basic function
 # Function of matching adverbs of degree and set weights
 def match(word, sentiment_value):
 	if word in mostdict:
             sentiment_value *= 2.0
 	elif word in verydict:
-	    sentiment_value *= 1.5
+            sentiment_value *= 1.5
 	elif word in moredict:
-	    sentiment_value *= 1.25
+            sentiment_value *= 1.25
 	elif word in ishdict:
-	    sentiment_value *= 0.5
+            sentiment_value *= 0.5
 	elif word in insufficientdict:
-	    sentiment_value *= 0.25
+            sentiment_value *= 0.25
 	elif word in inversedict:
             sentiment_value *= -1
 	return sentiment_value
@@ -110,42 +72,33 @@ def single_review_sentiment_score(review):
 		negcount = 0 # count a negative word
 
 		for word in seg_sent:
-		    if word in posdict:
-		        poscount += 1
-		        for w in seg_sent[s:i]:
-		           poscount = match(w, poscount)
-		        a = i + 1
+                   if word in posdict:
+                       poscount += 1
+                       for w in seg_sent[s:i]:
+                          poscount = match(w, poscount)
+                       a = i + 1
 
-		    elif word in negdict:
-		        negcount += 1
-		        for w in seg_sent[s:i]:
-		        	negcount = match(w, negcount)
-		        a = i + 1
+                   elif word in negdict:
+                       negcount += 1
+                       for w in seg_sent[s:i]:
+                        negcount = match(w, negcount)
+                       a = i + 1
 
-		    # Match "!" in the review, every "!" has a weight of +2
-		    elif word == "！".decode('utf8') or word == "!".decode('utf8'):
-		        for w2 in seg_sent[::-1]:
-		            if w2 in posdict:
-                                poscount += 2
-                                break
-		            elif w2 in negdict:
-		                negcount += 2
-		                break
-		    i += 1
+                   # Match "!" in the review, every "!" has a weight of +2
+                   elif word == "！".decode('utf8') or word == "!".decode('utf8'):
+                       for w2 in seg_sent[::-1]:
+                           if w2 in posdict:
+                               poscount += 2
+                               break
+                           elif w2 in negdict:
+                               negcount += 2
+                               break
+                   i += 1
 
 		single_review_senti_score.append(transform_to_positive_num(poscount, negcount))
 		review_sentiment_score = sumup_sentence_sentiment_score(single_review_senti_score)
 
 	return review_sentiment_score
-
-# Testing
-
-
-print single_review_sentiment_score(review[0])
-#import pdb
-#pdb.set_trace()
-
-
 
 
 # 3.2 All review dataset's sentiment score
@@ -173,14 +126,14 @@ def sentence_sentiment_score(dataset):
                 elif word in negdict:
                     negcount += 1
                     for w in seg_sent[a:i]:
-                    	negcount = match(w, negcount)
+                        negcount = match(w, negcount)
                     a = i + 1
 
                 elif word == '！'.decode('utf8') or word == '!'.decode('utf8'):
                     for w2 in seg_sent[::-1]:
                         if w2 in posdict:
-                        	poscount += 2
-                        	break
+                            poscount += 2
+                            break
                         elif w2 in negdict:
                             negcount += 2
                             break
@@ -211,17 +164,29 @@ def all_review_sentiment_score(senti_score_list):
         score.append([Pos, Neg, AvgPos, AvgNeg, StdPos, StdNeg])
     return score
 
-# Testing
-for i in all_review_sentiment_score(sentence_sentiment_score(review)):
-	print i
-
-
-
 # 4. Store sentiment dictionary features
 def store_sentiment_dictionary_score(review_set, storepath):
 	sentiment_score = all_review_sentiment_score(sentence_sentiment_score(review_set))
-
 	f = open(storepath,'w')
 	for i in sentiment_score:
-	    f.write(str(i[0])+'\t'+str(i[1])+'\t'+str(i[2])+'\t'+str(i[3])+'\t'+str(i[4])+'\t'+str(i[5])+'\n')
+            f.write(str(i[0])+'\t'+str(i[1])+'\t'+str(i[2])+'\t'+str(i[3])+'\t'+str(i[4])+'\t'+str(i[5])+'\n')
 	f.close()
+
+
+if __name__ == '__main__':
+    posdict = tp.get_txt_data("../data/posdict.txt","lines")
+    negdict = tp.get_txt_data("../data/negdict.txt","lines")
+    mostdict = tp.get_txt_data('../data/most.txt', 'lines')
+    verydict = tp.get_txt_data('../data/very.txt', 'lines')
+    moredict = tp.get_txt_data('../data/more.txt', 'lines')
+    ishdict = tp.get_txt_data('../data/ish.txt', 'lines')
+    insufficientdict = tp.get_txt_data('../data/insufficiently.txt', 'lines')
+    inversedict = tp.get_txt_data('../data/inverse.txt', 'lines')
+    review = tp.get_txt_data('reivew.txt', 'lines')
+
+    print len(review)
+    print single_review_sentiment_score(review[0])
+    review_score = all_review_sentiment_score(sentence_sentiment_score(review))
+    for index, score in enumerate(review_score):
+        print review[index], score
+

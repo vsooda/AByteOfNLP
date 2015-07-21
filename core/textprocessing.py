@@ -10,7 +10,7 @@ Chinese word segmentation, postagger, sentence cutting and stopwords filtering f
 import xlrd
 import jieba
 import jieba.posseg
-jieba.load_userdict('/home/sooda/nlp/Review-Helpfulness-Prediction/data/userdict.txt') #Load user dictionary to increse segmentation accuracy
+jieba.load_userdict('../data/userdict.txt') #Load user dictionary to increse segmentation accuracy
 
 
 """
