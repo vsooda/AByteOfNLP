@@ -106,15 +106,17 @@ class DictSentiment:
         neg_score = np.sum(score_array[:, 1])
         return [pos_score, neg_score]
 
-    def single_review_sentiment_score(self, review):
+    def single_sentiment_score(self, review):
         sentences_words = self.cut_sentences_words(review)
+        self.sentences_words = []
+        self.sentences_words = sentences_words
         scores = self.get_single_sent_count(sentences_words)
         return scores[0], scores[1]
 
     def sentence_sentiment_score(self, dataset):
         dataset = dataset[1:10]
         for review in dataset:
-            scores = self.single_review_sentiment_score(review)
+            scores = self.single_sentiment_score(review)
             print scores[0], scores[1]
 
 if __name__ == '__main__':
@@ -122,7 +124,7 @@ if __name__ == '__main__':
     dict_sentiment = DictSentiment()
 
     print len(review)
-    print dict_sentiment.single_review_sentiment_score(review[0])
+    print dict_sentiment.single_sentiment_score(review[0])
     dict_sentiment.sentence_sentiment_score(review)
 
 

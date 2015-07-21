@@ -10,6 +10,7 @@ Chinese word segmentation, postagger, sentence cutting and stopwords filtering f
 import xlrd
 import jieba
 import jieba.posseg
+import csv
 #jieba.load_userdict('../data/userdict.txt') #Load user dictionary to increse segmentation accuracy
 
 
@@ -35,6 +36,23 @@ def get_excel_data(filepath, sheetnum, colnum, para):
         return data
     elif para == 'rownum':
         return rownum
+
+#保存成字典
+def get_csv_data(filepath, cols):
+    with open(filepath) as f:
+        f_csv = csv.reader(f)
+        headers = next(f_csv)
+        resources = []
+        for row in f_csv:
+            items = {
+                'name' : row[0],
+                'sentiment' : row[1],
+                'type' : row[2],
+                'other' : row[3]
+            }
+            resources.append(items)
+        return resources
+
 
 
 """

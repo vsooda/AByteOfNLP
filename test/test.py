@@ -5,6 +5,8 @@ import jieba
 import jieba.analyse
 from optparse import OptionParser
 from core import DictSentiment
+import core.textprocessing as tp
+import core.search_resource as sr
 
 USAGE = "usage:    python extract_keyword.py content -k [top k]"
 
@@ -29,4 +31,11 @@ for x, w in tags :
     print('%s %s' %(x, w))
 
 ds = DictSentiment.DictSentiment()
-print ds.single_review_sentiment_score(content)
+print ds.single_sentiment_score(content)
+for words in ds.sentences_words:
+    for word in words:
+        print word
+
+
+reses = sr.ResourcesIndex()
+reses.dump()
