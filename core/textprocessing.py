@@ -10,7 +10,7 @@ Chinese word segmentation, postagger, sentence cutting and stopwords filtering f
 import xlrd
 import jieba
 import jieba.posseg
-jieba.load_userdict('../data/userdict.txt') #Load user dictionary to increse segmentation accuracy
+#jieba.load_userdict('../data/userdict.txt') #Load user dictionary to increse segmentation accuracy
 
 
 """
@@ -180,7 +180,7 @@ def seg_fil_excel(filepath, sheetnum, colnum):
         review_data.append(segmentation(cell, 'list')) # Seg every reivew
 
     # Read txt file contain stopwords
-    stopwords = get_txt_data('/home/sooda/nlp/Review-Helpfulness-Prediction/data/stopword.txt', 'lines')
+    stopwords = get_txt_data('../data/stopword.txt', 'lines')
 
     # Filter stopwords from reviews
     seg_fil_result = []

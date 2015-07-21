@@ -15,6 +15,7 @@ class DictSentiment:
         self.ishdict = tp.get_txt_data('../data/ish.txt', 'lines')
         self.insufficientdict = tp.get_txt_data('../data/insufficiently.txt', 'lines')
         self.inversedict = tp.get_txt_data('../data/inverse.txt', 'lines')
+        self.stopwords = tp.get_txt_data('../data/sentiment_stopword.txt', 'lines')
 
 
     def match(self, word, sentiment_value):
@@ -64,12 +65,17 @@ class DictSentiment:
         StdNeg = np.std(score_array[:,1])
         return [Pos, Neg, AvgPos, AvgNeg, StdPos, StdNeg]
 
+    def stopWordFilter(self, words):
+        fil = [word for word in words if word not in self.stopwords and word != ' ']
+        return fil
+
     def get_single_sent_count(self, cuted_sents):
         single_review_senti_score = []
         posdict = self.posdict
         negdict = self.negdict
         for sent in cuted_sents:
             seg_sent = tp.segmentation(sent, 'list')
+            seg_sent = self.stopWordFilter(seg_sent)
             i = 0 # word position counter
             a = 0 # sentiment word position
             poscount = 0 # count a positive word
@@ -77,7 +83,7 @@ class DictSentiment:
 
             #match 用于表示程度
             for word in seg_sent:
-                #print '...', word
+                print '...', word
                 if word in posdict:
                    poscount += 1
                    for w in seg_sent[a:i]:
@@ -102,13 +108,11 @@ class DictSentiment:
             single_review_senti_score.append(self.transform_to_positive_num(poscount, negcount))
         return single_review_senti_score
 
-
     def single_review_sentiment_score(self, review):
         cuted_review = tp.cut_sentence_2(review)
         single_review_senti_score = self.get_single_sent_count(cuted_review)
         review_sentiment_score = self.sumup_sentence_sentiment_score(single_review_senti_score)
-        return review_sentiment_score
-
+        return review_sentiment_score[0], review_sentiment_score[1]
 
 # 3.2 All review dataset's sentiment score
     def sentence_sentiment_score(self, dataset):
@@ -122,7 +126,6 @@ class DictSentiment:
             single_review_count = self.get_single_sent_count(review)
             all_review_count.append(single_review_count)
         return all_review_count
-
 
 # Compute a single review's sentiment score
     def all_review_sentiment_score(self, senti_score_list):

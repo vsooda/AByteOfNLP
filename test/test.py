@@ -4,7 +4,7 @@ sys.path.append('../')
 import jieba
 import jieba.analyse
 from optparse import OptionParser
-import DictSentiment
+from core import DictSentiment
 
 USAGE = "usage:    python extract_keyword.py content -k [top k]"
 
