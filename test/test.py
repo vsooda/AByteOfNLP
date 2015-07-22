@@ -51,3 +51,15 @@ output = ' '.join(words)
 print 'keywords: ', output
 
 reses.searchItem(words)
+
+while 1:
+    query = raw_input('enter query: ')
+    query = query.decode('utf8')
+    print ds.single_sentiment_score(query)
+    words = []
+    for sent in ds.sentences_words:
+        words = words + sent
+    output = ' '.join(words)
+    print 'keywords: ', output
+    reses.searchItem(words)
+

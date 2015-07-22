@@ -11,9 +11,9 @@ class ResourcesIndex :
     def constructDict(self):
         keywords =  []
         for index, res in self.resources.items():
-            for k, v in res.items():
-                v = v.strip()
-                words = v.split(' ')
+            for k, words in res.items():
+                #v = v.strip()
+                #words = v.split(' ')
                 keywords = keywords + words
         keywords = list(set(keywords))
         #writing to user dict
@@ -43,9 +43,9 @@ class ResourcesIndex :
         self.invertIndex = {}
         for index, res in self.resources.items():
             for k, words in res.items():
-                words = words.strip()
-                word = words.split(' ')
-                for v in word:
+                #words = words.strip()
+                #word = words.split(' ')
+                for v in words:
                     if not v in self.invertIndex:
                         self.invertIndex[v] = []
                     item = {
@@ -89,7 +89,7 @@ class ResourcesIndex :
         #after sorted, the dict become a list
         scores = sorted(scores.iteritems(), key=lambda d:d[1], reverse=True)
         for score in scores:
-            print score[0], self.resources[score[0]]['name'], score[1]
+            print score[0], self.resources[score[0]]['name'][0], score[1]
 
 
 
