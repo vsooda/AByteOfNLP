@@ -55,13 +55,20 @@ class ResourcesIndex :
         self.keywordWeight = {}
         for index, keywords in self.keywords.items():
             keyweights = {}
-            #1.0 is wrong
-            weight = 1.0 / len(keywords)
-            for word in keywords:
-                keyweights[word] = weight
+            keysets = list(set(keywords))
+            for word in keysets:
+                occurTime = keywords.count(word)
+                keyweights[word] = occurTime * 1.0 / len(keywords)
             self.keywordWeight[index] = keyweights
+            self.keywords[index] = keysets
         print self.keywordWeight
         #idf ok
+
+        #去重
+        for index, keywords in self.keywords.items():
+            print index
+            for word in keywords:
+                print '... ', word
 
         keyCounter = {}
         for index, keywords in self.keywords.items():
