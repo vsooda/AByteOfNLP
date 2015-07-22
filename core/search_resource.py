@@ -3,6 +3,7 @@
 #filename: search_resource.py
 
 import core.textprocessing as tp
+import math
 
 class ResourcesIndex :
     def __init__(self):
@@ -35,16 +36,60 @@ class ResourcesIndex :
         print 'dump over'
 
 
-    #need to do count weight and normalize
-    #def countWeight
+    #类型信息不该由这个关键词保存, 关键词只是纯粹的关键词序列
+    def extractResourceKeywords(self):
+        self.keywords = {}
+        print 'keywords...'
+        for index, res in self.resources.items():
+            self.keywords[index] = [];
+            for k, words in res.items():
+                if k != 'type' and k != 'sentiment':
+                    self.keywords[index] = self.keywords[index] + words
+        for index, keywords in self.keywords.items():
+            print index
+            for word in keywords:
+                print '... ', word
+
+    def countTfidf(self):
+        self.extractResourceKeywords()
+        self.keywordWeight = {}
+        for index, keywords in self.keywords.items():
+            keyweights = {}
+            #1.0 is wrong
+            weight = 1.0 / len(keywords)
+            for word in keywords:
+                keyweights[word] = weight
+            self.keywordWeight[index] = keyweights
+        print self.keywordWeight
+        #idf ok
+
+        keyCounter = {}
+        for index, keywords in self.keywords.items():
+            for word in keywords:
+                if word not in keyCounter:
+                    keyCounter[word] = 0
+                keyCounter[word] = keyCounter[word] + 1
+
+        totalDocs = len(self.resources)
+        print 'total doc num ', totalDocs
+
+        for k, v in keyCounter.items():
+            keyCounter[k] = math.log(totalDocs / v)
+        print keyCounter
+
+        for index, keywordWeights in self.keywordWeight.items():
+            for word, weight in keywordWeights.items():
+                idf = keyCounter[word]
+                self.keywordWeight[index][word] = weight * idf
+
+        print self.keywordWeight
+
 
     #format: word: {"id", "weight"}
     def constructInvertIndex(self):
         self.invertIndex = {}
         for index, res in self.resources.items():
             for k, words in res.items():
-                #words = words.strip()
-                #word = words.split(' ')
                 for v in words:
                     if not v in self.invertIndex:
                         self.invertIndex[v] = []
@@ -53,6 +98,19 @@ class ResourcesIndex :
                         "weight": 1.0
                     }
                     self.invertIndex[v].append(item)
+
+    def constructInvertIndexTfidf(self):
+        self.countTfidf()
+        self.invertIndex = {}
+        for index, keywords in self.keywords.items():
+            for word in keywords:
+                if not word in self.invertIndex:
+                    self.invertIndex[word] = []
+                item = {
+                    "docid" : index,
+                    "weight" : self.keywordWeight[index][word]
+                }
+                self.invertIndex[word].append(item)
 
 
     def invertIndexDump(self):

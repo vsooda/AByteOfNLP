@@ -39,7 +39,8 @@ print ds.single_sentiment_score(content)
 
 reses = sr.ResourcesIndex()
 #reses.dump()
-reses.constructInvertIndex()
+#reses.constructInvertIndex()
+reses.constructInvertIndexTfidf()
 #reses.invertIndexDump()
 reses.constructDict()
 
@@ -51,6 +52,9 @@ output = ' '.join(words)
 print 'keywords: ', output
 
 reses.searchItem(words)
+#reses.extractResourceKeywords()
+#reses.constructInvertIndexTfidf()
+reses.countTfidf()
 
 while 1:
     query = raw_input('enter query: ')
