@@ -8,6 +8,26 @@ class ResourcesIndex :
     def __init__(self):
         self.resources = tp.get_csv_data('../data/resources.csv', 4)
 
+    def constructDict(self):
+        keywords =  []
+        for index, res in self.resources.items():
+            for k, v in res.items():
+                v = v.strip()
+                words = v.split(' ')
+                keywords = keywords + words
+        keywords = list(set(keywords))
+        #writing to user dict
+        pDict = open('../data/dict.tmp', 'wb+')
+        firstline = True
+        for k in keywords:
+            if not firstline:
+                pDict.write('\n')
+            pDict.write(k)
+            firstline = False
+            print k
+        pDict.close()
+
+
     def dump(self):
         for index, res in self.resources.items():
             for k, v in res.items():
@@ -22,14 +42,17 @@ class ResourcesIndex :
     def constructInvertIndex(self):
         self.invertIndex = {}
         for index, res in self.resources.items():
-            for k, v in res.items():
-                if not v in self.invertIndex:
-                    self.invertIndex[v] = []
-                item = {
-                    "docid" : index,
-                    "weight": 1.0
-                }
-                self.invertIndex[v].append(item)
+            for k, words in res.items():
+                words = words.strip()
+                word = words.split(' ')
+                for v in word:
+                    if not v in self.invertIndex:
+                        self.invertIndex[v] = []
+                    item = {
+                        "docid" : index,
+                        "weight": 1.0
+                    }
+                    self.invertIndex[v].append(item)
 
 
     def invertIndexDump(self):

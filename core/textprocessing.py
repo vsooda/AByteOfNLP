@@ -11,7 +11,7 @@ import xlrd
 import jieba
 import jieba.posseg
 import csv
-#jieba.load_userdict('../data/userdict.txt') #Load user dictionary to increse segmentation accuracy
+jieba.load_userdict('../data/userdict.txt') #Load user dictionary to increse segmentation accuracy
 
 
 """
@@ -51,7 +51,9 @@ def get_csv_data(filepath, cols):
                 'name' : row[0],
                 'sentiment' : row[1],
                 'type' : row[2],
-                'other' : row[3]
+                'tools' : row[3],
+                'other' : row[4]
+
             }
             #resources[str(index)] = items
             resources[index] = items

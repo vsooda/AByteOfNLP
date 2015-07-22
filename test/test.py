@@ -32,15 +32,16 @@ for x, w in tags :
 
 ds = DictSentiment.DictSentiment()
 print ds.single_sentiment_score(content)
-for words in ds.sentences_words:
-    for word in words:
-        print word
+#for words in ds.sentences_words:
+#    for word in words:
+#        print word
 
 
 reses = sr.ResourcesIndex()
-reses.dump()
+#reses.dump()
 reses.constructInvertIndex()
-reses.invertIndexDump()
+#reses.invertIndexDump()
+reses.constructDict()
 
 words = []
 for sent in ds.sentences_words:
