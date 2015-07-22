@@ -14,7 +14,9 @@ class ResourcesIndex :
                 print k, v
         print 'dump over'
 
-#    def searchItem(self, keywords)
+
+    #need to do count weight and normalize
+    #def countWeight
 
     #format: word: {"id", "weight"}
     def constructInvertIndex(self):
@@ -35,3 +37,29 @@ class ResourcesIndex :
             print word
             for index in indexs:
                 print '...', index['docid'], index['weight']
+
+
+    #input: keywords
+    #output: top 5 resouces item name, and their weight
+    def searchItem(self, keywords):
+        scores = {}
+        for k in keywords:
+            print 'searching ', k
+            if k in self.invertIndex:
+                print 'invert key ', k
+                items = self.invertIndex[k]
+                for item in items:
+                    docid = item['docid']
+                    weight = item['weight']
+                    if docid not in scores:
+                        scores[docid] = 0
+                    scores[docid] = scores[docid] + weight
+            #else:
+            #    print 'else ', self.invertIndex[k]
+
+        print len(items)
+        for docid, score in scores.items():
+            print docid, self.resources[docid]['name'], score
+
+
+

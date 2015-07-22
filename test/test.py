@@ -41,3 +41,12 @@ reses = sr.ResourcesIndex()
 reses.dump()
 reses.constructInvertIndex()
 reses.invertIndexDump()
+
+words = []
+for sent in ds.sentences_words:
+    words = words + sent
+
+output = ' '.join(words)
+print 'keywords: ', output
+
+reses.searchItem(words)

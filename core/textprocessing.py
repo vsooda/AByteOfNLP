@@ -46,6 +46,7 @@ def get_csv_data(filepath, cols):
         resources = {}
         index = 0
         for row in f_csv:
+            row = [cell.decode('utf8') for cell in row]
             items = {
                 'name' : row[0],
                 'sentiment' : row[1],
