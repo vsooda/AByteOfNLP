@@ -39,3 +39,5 @@ for words in ds.sentences_words:
 
 reses = sr.ResourcesIndex()
 reses.dump()
+reses.constructInvertIndex()
+reses.invertIndexDump()

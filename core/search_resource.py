@@ -9,7 +9,29 @@ class ResourcesIndex :
         self.resources = tp.get_csv_data('../data/resources.csv', 4)
 
     def dump(self):
-        for res in self.resources:
+        for index, res in self.resources.items():
             for k, v in res.items():
                 print k, v
         print 'dump over'
+
+#    def searchItem(self, keywords)
+
+    #format: word: {"id", "weight"}
+    def constructInvertIndex(self):
+        self.invertIndex = {}
+        for index, res in self.resources.items():
+            for k, v in res.items():
+                if not v in self.invertIndex:
+                    self.invertIndex[v] = []
+                item = {
+                    "docid" : index,
+                    "weight": 1.0
+                }
+                self.invertIndex[v].append(item)
+
+
+    def invertIndexDump(self):
+        for word, indexs in self.invertIndex.items():
+            print word
+            for index in indexs:
+                print '...', index['docid'], index['weight']

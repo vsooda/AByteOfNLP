@@ -42,7 +42,9 @@ def get_csv_data(filepath, cols):
     with open(filepath) as f:
         f_csv = csv.reader(f)
         headers = next(f_csv)
-        resources = []
+        #resources = []
+        resources = {}
+        index = 0
         for row in f_csv:
             items = {
                 'name' : row[0],
@@ -50,7 +52,9 @@ def get_csv_data(filepath, cols):
                 'type' : row[2],
                 'other' : row[3]
             }
-            resources.append(items)
+            #resources[str(index)] = items
+            resources[index] = items
+            index = index + 1
         return resources
 
 
