@@ -44,9 +44,9 @@ class ResourcesIndex :
     def searchItem(self, keywords):
         scores = {}
         for k in keywords:
-            print 'searching ', k
+            #print 'searching ', k
             if k in self.invertIndex:
-                print 'invert key ', k
+                #print 'invert key ', k
                 items = self.invertIndex[k]
                 for item in items:
                     docid = item['docid']
@@ -54,12 +54,20 @@ class ResourcesIndex :
                     if docid not in scores:
                         scores[docid] = 0
                     scores[docid] = scores[docid] + weight
-            #else:
-            #    print 'else ', self.invertIndex[k]
 
-        print len(items)
-        for docid, score in scores.items():
-            print docid, self.resources[docid]['name'], score
+        print len(scores), ' results'
+        result = len(scores)
+        if result <= 0:
+            print 'no match'
+            return
+        #for docid, score in scores.items():
+        #    print docid, self.resources[docid]['name'], score
+
+        #after sorted, the dict become a list
+        scores = sorted(scores.iteritems(), key=lambda d:d[1], reverse=True)
+        for score in scores:
+            print score[0], self.resources[score[0]]['name'], score[1]
+
 
 
 

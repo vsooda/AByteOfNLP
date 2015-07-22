@@ -61,7 +61,7 @@ class DictSentiment:
         cuted_review = tp.cut_sentence_2(review)
         for sent in cuted_review:
             seg_sent = tp.segmentation(sent, 'list')
-            seg_sent = self.stopWordFilter(seg_sent)
+            #seg_sent = self.stopWordFilter(seg_sent)
             sent_words.append(seg_sent)
         return sent_words
 
