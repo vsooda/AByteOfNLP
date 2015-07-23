@@ -45,10 +45,6 @@ class ResourcesIndex :
             for k, words in res.items():
                 if k != 'type' and k != 'sentiment':
                     self.keywords[index] = self.keywords[index] + words
-        for index, keywords in self.keywords.items():
-            print index
-            for word in keywords:
-                print '... ', word
 
     def countTfidf(self):
         self.extractResourceKeywords()
@@ -58,17 +54,19 @@ class ResourcesIndex :
             keysets = list(set(keywords))
             for word in keysets:
                 occurTime = keywords.count(word)
-                keyweights[word] = occurTime * 1.0 / len(keywords)
+                weight = occurTime * 1.0 / len(keywords)
+                keyweights[word] = weight
+                #print index, word, occurTime, len(keywords), weight
             self.keywordWeight[index] = keyweights
             self.keywords[index] = keysets
-        print self.keywordWeight
+        #print self.keywordWeight
         #idf ok
 
         #去重
-        for index, keywords in self.keywords.items():
-            print index
-            for word in keywords:
-                print '... ', word
+        #for index, keywords in self.keywords.items():
+        #    print index
+        #    for word in keywords:
+        #        print '... ', word
 
         keyCounter = {}
         for index, keywords in self.keywords.items():
@@ -81,7 +79,9 @@ class ResourcesIndex :
         print 'total doc num ', totalDocs
 
         for k, v in keyCounter.items():
-            keyCounter[k] = math.log(totalDocs / v)
+            idfWeight = math.log(totalDocs / v)
+            keyCounter[k] = idfWeight
+            print k, v, totalDocs, idfWeight
         print keyCounter
 
         for index, keywordWeights in self.keywordWeight.items():

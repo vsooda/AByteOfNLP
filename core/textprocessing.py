@@ -53,7 +53,6 @@ def get_csv_data(filepath, cols):
                 'type' : row[2],
                 'tools' : row[3],
                 'other' : row[4]
-
             }
             #resources[str(index)] = items
             resources[index] = items
