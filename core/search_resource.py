@@ -25,7 +25,7 @@ class ResourcesIndex :
                 pDict.write('\n')
             pDict.write(k)
             firstline = False
-            print k
+            #print k
         pDict.close()
 
 
@@ -81,15 +81,15 @@ class ResourcesIndex :
         for k, v in keyCounter.items():
             idfWeight = math.log(totalDocs / v)
             keyCounter[k] = idfWeight
-            print k, v, totalDocs, idfWeight
-        print keyCounter
+            #print k, v, totalDocs, idfWeight
+        #print keyCounter
 
         for index, keywordWeights in self.keywordWeight.items():
             for word, weight in keywordWeights.items():
                 idf = keyCounter[word]
                 self.keywordWeight[index][word] = weight * idf
 
-        print self.keywordWeight
+        #print self.keywordWeight
 
 
     #format: word: {"id", "weight"}
@@ -155,6 +155,9 @@ class ResourcesIndex :
         scores = sorted(scores.iteritems(), key=lambda d:d[1], reverse=True)
         for score in scores:
             print score[0], self.resources[score[0]]['name'][0], score[1]
+            otherKeywords = self.resources[score[0]]['other']
+            for word in otherKeywords:
+                print '--- ', word
 
 
 

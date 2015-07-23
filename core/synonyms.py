@@ -4,7 +4,7 @@
 
 class Synonyms:
     def __init__(self):
-        print 'dd'
+        print 'synonyms'
 
     def constructSynonymsDict(self):
         pfile = open('../data/tyccl.txt', 'r')
