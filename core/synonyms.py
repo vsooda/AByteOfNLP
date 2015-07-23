@@ -52,7 +52,9 @@ class Synonyms:
             words = words.split(' ')
             #simWords = words[1:len(words)]
             #self.synoIndex[words[0]] = simWords
-            self.synoIndex[words[0]] = words
+            if words[0] not in self.synoIndex:
+                self.synoIndex[words[0]] = []
+            self.synoIndex[words[0]] = self.synoIndex[words[0]] + words
 
         #for k, v in self.synoIndex.items():
         #    print k

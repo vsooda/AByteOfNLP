@@ -53,6 +53,7 @@ if __name__ == "__main__":
             #for res in results:
             #    print '...', res
             expandWords = expandWords + results
+        expandWords = list(set(expandWords))
 
         output1 = ' '.join(expandWords)
         print 'expand keywords: ', output1

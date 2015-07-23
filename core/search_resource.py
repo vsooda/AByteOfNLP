@@ -142,6 +142,7 @@ class ResourcesIndex :
                     if docid not in scores:
                         scores[docid] = 0
                     scores[docid] = scores[docid] + weight
+                    #print weight
 
         print len(scores), ' results'
         result = len(scores)
