@@ -61,7 +61,7 @@ class Synonyms:
 
     def querySynoyms(self, word):
         if word not in self.synoIndex:
-            return word
+            return [word]
         else:
             return self.synoIndex[word]
 

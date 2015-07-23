@@ -38,12 +38,16 @@ print ds.single_sentiment_score(content)
 #        print word
 
 
+
 reses = sr.ResourcesIndex()
 #reses.dump()
 #reses.constructInvertIndex()
 reses.constructInvertIndexTfidf()
 #reses.invertIndexDump()
 reses.constructDict()
+
+synos = syno.Synonyms()
+synos.constructSynoymsIndex()
 
 words = []
 for sent in ds.sentences_words:
@@ -57,8 +61,6 @@ reses.searchItem(words)
 #reses.constructInvertIndexTfidf()
 reses.countTfidf()
 
-syno = syno.Synonyms()
-syno.constructSynonymsDict()
 
 while 1:
     query = raw_input('enter query: ')
@@ -69,5 +71,13 @@ while 1:
         words = words + sent
     output = ' '.join(words)
     print 'keywords: ', output
+    expandWords = []
+    for word in words:
+        results = synos.querySynoyms(word)
+        expandWords = expandWords + results
+
+    output1 = ' '.join(expandWords)
+    print 'expand keywords: ', output1
+
     reses.searchItem(words)
 
