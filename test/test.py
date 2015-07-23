@@ -7,6 +7,7 @@ from optparse import OptionParser
 from core import DictSentiment
 import core.textprocessing as tp
 import core.search_resource as sr
+import core.synonyms as syno
 
 USAGE = "usage:    python extract_keyword.py content -k [top k]"
 
@@ -55,6 +56,9 @@ reses.searchItem(words)
 #reses.extractResourceKeywords()
 #reses.constructInvertIndexTfidf()
 reses.countTfidf()
+
+syno = syno.Synonyms()
+syno.constructSynonymsDict()
 
 while 1:
     query = raw_input('enter query: ')
