@@ -1,5 +1,6 @@
 import sys
-sys.path.append('../')
+#sys.path.append('../')
+import _init_paths
 
 import jieba
 import jieba.analyse
@@ -8,6 +9,7 @@ from core import DictSentiment
 import core.textprocessing as tp
 import core.search_resource as sr
 import core.synonyms as syno
+import os
 
 
 if __name__ == "__main__":
@@ -34,6 +36,7 @@ if __name__ == "__main__":
     synos = syno.Synonyms()
     synos.constructSynoymsIndex()
     #reses.countTfidf()
+    print os.path.abspath(__file__)
 
 
     while 1:
