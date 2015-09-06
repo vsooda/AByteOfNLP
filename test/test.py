@@ -1,6 +1,6 @@
 import sys
-#sys.path.append('../')
-import _init_paths
+sys.path.append('../')
+#import _init_paths
 
 import jieba
 import jieba.analyse
