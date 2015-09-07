@@ -31,6 +31,10 @@ cfg = __C
 # Root directory of project
 #__C.ROOT_DIR = osp.abspath(osp.join(osp.dirname(__file__), '..', '..'))
 __C.ROOT_DIR = osp.abspath(osp.join(osp.dirname(__file__), '..'))
+__C.POST_FILENAME = 'repos/mini_post'
+__C.DATAPATH = 'data/stc/'
+__C.COMMENT_FILENAME = 'repos/mini_comment'
+__C.FILTER_POSTFIX = '_filtered'
 
 # Place outputs under an experiments directory
 __C.EXP_DIR = 'default'

@@ -13,14 +13,15 @@ import util.filter as Filter
 
 if __name__ == "__main__":
     print cfg.ROOT_DIR
-    stcpath = os.path.join(cfg.ROOT_DIR, 'data/stc/')
-    postFile = os.path.join(stcpath, 'repos/mini_post')
-    commentFile = os.path.join(stcpath, 'repos/mini_comment')
+    stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
+    postFile = os.path.join(stcpath, cfg.POST_FILENAME)
+    commentFile = os.path.join(stcpath, cfg.COMMENT_FILENAME)
+    filterPostfix = cfg.FILTER_POSTFIX
     print stcpath
     print postFile
     print commentFile
 
-    linesfilter(postFile, commentFile)
+    linesfilter(postFile, commentFile, filterPostfix)
     print 'filer ok'
 
     #f = open(postFile, 'r')
