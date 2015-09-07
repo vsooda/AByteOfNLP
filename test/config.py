@@ -35,6 +35,8 @@ __C.POST_FILENAME = 'repos/mini_post'
 __C.DATAPATH = 'data/stc/'
 __C.COMMENT_FILENAME = 'repos/mini_comment'
 __C.FILTER_POSTFIX = '_filtered'
+__C.INDEX_POSTFIX = '_index'
+__C.SEG_POSTFIX = '_seg'
 
 # Place outputs under an experiments directory
 __C.EXP_DIR = 'default'

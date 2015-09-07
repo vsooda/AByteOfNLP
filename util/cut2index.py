@@ -4,8 +4,9 @@
 import sys
 import jieba
 import time
+from config import cfg
 import cPickle as pickle
-sys.path.append('../')
+import _init_paths
 import os
 
 
@@ -29,7 +30,7 @@ def buildWordVocab(postLists, commentLists, wordCountThreshold = 2):
 
 def buildWordIndex(vocab):
     ixtoword = {}
-    ixtoword[0] = '.'
+    ixtoword[0] = '#END#'
     wordtoix = {}
     wordtoix['#START#'] = 0
     ix = 1
@@ -44,18 +45,46 @@ def buildSentenceIndex(postLists, commentLists, word2ix):
     commentSents = []
     print 'sentenct indexing'
     print len(postLists)
+    postIndexs = []
+    commentIndexs = []
     #print len(postLists[0])
     #just ingnore the symbol which is not in the vocab
     for words in postLists:
         indexs = [0] + [word2ix[w] for w in words if w in word2ix ]
-        print ', '.join(words)
-        for index in indexs:
-            print index
+        #print ', '.join(words)
+        #print ' '.join(str(x) for x in indexs)
+        postIndexs.append(indexs)
     for words in commentLists:
         indexs =[word2ix[w] for w in words if w in word2ix ] + [0]
-        print ', '.join(words)
-        for index in indexs:
-            print index
+        #print ' '.join(words)
+        #print ' '.join(str(x) for x in indexs)
+        commentIndexs.append(indexs)
+
+    return postIndexs, commentIndexs
+
+def writeIndexFile(postIndexName, postIndexs, commentIndexName, commentIndexs):
+    print 'writing index file ', len(postIndexs), postIndexName, commentIndexName
+    assert(len(postIndexs) == len(commentIndexs))
+    fpostIndex = open(postIndexName, 'w')
+    for indexs in postIndexs:
+        text = ' '.join(str(x) for x in indexs) + '\n'
+        fpostIndex.write(text)
+    fcommentIndex = open(commentIndexName, 'w')
+    for indexs in commentIndexs:
+        text = ' '.join(str(x) for x in indexs) + '\n'
+        fcommentIndex.write(text)
+
+def writeSegFile(postSegName, postLists, commentSegName, commentLists):
+    fpostSeg = open(postSegName, 'w')
+    for words in postLists:
+        text = ' '.join(words) + '\n'
+        fpostSeg.write(text)
+    fcommentSeg = open(commentSegName, 'w')
+    for words in commentLists:
+        text = ' '.join(words) + '\n'
+        fcommentSeg.write(text)
+
+
 
 #generator new file which every word present with id
 def cut2index(postFilename, commentFilename):
@@ -89,6 +118,19 @@ def cut2index(postFilename, commentFilename):
     print ', '.join(postLists[0])
     vocab = buildWordVocab(postLists, commentLists)
     ix2word, word2ix = buildWordIndex(vocab)
-    buildSentenceIndex(postLists, commentLists, word2ix)
+    postIndexs, commentIndexs = buildSentenceIndex(postLists, commentLists, word2ix)
+    for indexs in postIndexs:
+        print ' '.join(ix2word[x] for x in indexs)
+    for indexs in commentIndexs:
+        print ' '.join(ix2word[x] for x in indexs)
+    #for indexs in commentIndexs:
+    #    print ' '.join(str(x) for x in indexs)
 
+    postSegName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.POST_FILENAME) + cfg.SEG_POSTFIX
+    commentSegName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.COMMENT_FILENAME) + cfg.SEG_POSTFIX
+    writeSegFile(postSegName, postLists, commentSegName, commentLists)
+
+    postIndexName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.POST_FILENAME) + cfg.INDEX_POSTFIX
+    commentIndexName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.COMMENT_FILENAME) + cfg.INDEX_POSTFIX
+    writeIndexFile(postIndexName, postIndexs, commentIndexName, commentIndexs)
 
