@@ -14,10 +14,10 @@ digitPattern = re.compile('\d+\.?\d*')
 
 def urlFilter(contents):
     contents = re.sub(urlPattern, 'URL', contents)
-    print 'url filtering', contents
+    #print 'url filtering', contents
     return contents
 
-def spaceFiler(contents):
+def spaceFilter(contents):
     contents = re.sub('\s+', ' ', contents)
     return contents
 

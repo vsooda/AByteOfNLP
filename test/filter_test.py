@@ -8,7 +8,7 @@ import util.filter as Filter
 
 
 def testSpaceFilter(contents):
-    filted = Filter.spaceFiler(text)
+    filted = Filter.spaceFilter(text)
     return filted
 
 
