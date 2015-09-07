@@ -23,7 +23,8 @@ if __name__ == "__main__":
     linesfilter(postFile, commentFile)
     print 'filer ok'
 
-    f = open(postFile, 'r')
+    #f = open(postFile, 'r')
+    f = open(commentFile, 'r')
     lines = f.readlines()
     _data = edict()
     dicts = {}
@@ -32,9 +33,10 @@ if __name__ == "__main__":
         temp = line.strip().split("\t")
         dicts[temp[0]] = temp[1]
 
-    aa = dicts['repos-post-1000008610']
+    #aa = dicts['repos-post-1000008610']
+    aa = dicts['repos-cmnt-1000919120']
     print aa
-    Filter.urlFilter(aa)
+    aa = Filter.urlFilter(aa)
     print aa
     segs = jieba.cut(aa)
     for w in segs:
