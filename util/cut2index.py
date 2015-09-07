@@ -34,14 +34,17 @@ def buildWordVocab(postLists, commentLists, wordCountThreshold = 2):
 
 def buildWordIndex(vocab):
     ixtoword = {}
-    ixtoword[0] = '#END#'
+    #ixtoword[0] = '#END#'
     wordtoix = {}
-    wordtoix['#START#'] = 0
+    #wordtoix['#START#'] = 0
     ix = 1
     for w in vocab:
         wordtoix[w] = ix
         ixtoword[ix] = w
         ix += 1
+    ixtoword[ix] = '#END#'
+    wordtoix['#START#'] = ix
+
     return ixtoword, wordtoix
 
 def buildSentenceIndex(postLists, commentLists, word2ix):
@@ -51,15 +54,17 @@ def buildSentenceIndex(postLists, commentLists, word2ix):
     print len(postLists)
     postIndexs = []
     commentIndexs = []
+
+    vocabSize = len(word2ix)
     #print len(postLists[0])
     #just ingnore the symbol which is not in the vocab
     for words in postLists:
-        indexs = [0] + [word2ix[w] for w in words if w in word2ix ]
+        indexs = [vocabSize] + [word2ix[w] for w in words if w in word2ix ]
         #print ', '.join(words)
         #print ' '.join(str(x) for x in indexs)
         postIndexs.append(indexs)
     for words in commentLists:
-        indexs =[word2ix[w] for w in words if w in word2ix ] + [0]
+        indexs =[word2ix[w] for w in words if w in word2ix ] +[vocabSize]
         #print ' '.join(words)
         #print ' '.join(str(x) for x in indexs)
         commentIndexs.append(indexs)
