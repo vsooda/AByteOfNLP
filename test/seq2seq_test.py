@@ -9,7 +9,7 @@ from util.cut2index import *
 from config import cfg
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
-from  keras_theano.seq2seq import seq2seq
+from  keras_theano.seq2seq import seq2seq, batchSeq2seq
 
 def to_one_hot(id):
     zeros = [0] * maxFeatures
@@ -41,14 +41,12 @@ if __name__ == "__main__":
     print 'after padd'
     #for indexs in X:
     #    print 'lenindex: ', len(indexs), ' '.join(str(x) for x in indexs)
-    xs = np.asarray(X)
-    Y = map(lambda x: map(to_one_hot, x), Y)
-    ys = np.asarray(Y)
-
-    print 'maxfeature, maxlen: ',  maxFeatures, maxlen
-
-    print("XS Shape: ", xs.shape)
-    print("YS Shape: ", ys.shape)
-
-    seq2seq(xs, ys, maxFeatures, maxlen)
+    #xs = np.asarray(X)
+    #Y = map(lambda x: map(to_one_hot, x), Y)
+    #ys = np.asarray(Y)
+    #print 'maxfeature, maxlen: ',  maxFeatures, maxlen
+    #print("XS Shape: ", xs.shape)
+    #print("YS Shape: ", ys.shape)
+    #seq2seq(xs, ys, maxFeatures, maxlen)
+    batchSeq2seq(X, Y, maxFeatures, maxlen)
 

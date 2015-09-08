@@ -70,7 +70,7 @@ def batchSeq2seq(X, Y, max_features, maxlen):
         np.random.shuffle(indexs)
         X_samples = []
         Y_samples = []
-        sampleNums = 10
+        sampleNums = max(100, totalSampleNum / 20)
         for i in xrange(sampleNums):
             ix = indexs[i]
             X_samples.append(X[ix])
@@ -168,8 +168,8 @@ if __name__ == '__main__':
         new_x = r[::]
         xs.append(new_x)
     ys = xs
-    #seq_test(xs, ys, max_features, maxlen)
-    seq_batch_test(xs, ys, max_features, maxlen)
+    seq_test(xs, ys, max_features, maxlen)
+    #seq_batch_test(xs, ys, max_features, maxlen)
 
 
 
