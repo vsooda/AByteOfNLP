@@ -10,7 +10,7 @@ import _init_paths
 import os
 
 
-def buildWordVocab(postLists, commentLists, wordCountThreshold = 2):
+def buildWordVocab(postLists, commentLists, wordCountThreshold = 3):
     wordCounts = {}
     nsents = 0
     t0 = time.time()
@@ -75,11 +75,16 @@ def writeIndexFile(postIndexName, postIndexs, commentIndexName, commentIndexs):
     print 'writing index file ', len(postIndexs), postIndexName, commentIndexName
     assert(len(postIndexs) == len(commentIndexs))
     fpostIndex = open(postIndexName, 'w')
+    maxlen = 30
     for indexs in postIndexs:
+        if len(indexs) > maxlen:
+            indexs = indexs[:maxlen]
         text = ' '.join(str(x) for x in indexs) + '\n'
         fpostIndex.write(text)
     fcommentIndex = open(commentIndexName, 'w')
     for indexs in commentIndexs:
+        if len(indexs) > maxlen:
+            indexs = indexs[:maxlen]
         text = ' '.join(str(x) for x in indexs) + '\n'
         fcommentIndex.write(text)
 
@@ -142,4 +147,15 @@ def cut2index(postFilename, commentFilename):
     postIndexName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.POST_FILENAME) + cfg.INDEX_POSTFIX
     commentIndexName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.COMMENT_FILENAME) + cfg.INDEX_POSTFIX
     writeIndexFile(postIndexName, postIndexs, commentIndexName, commentIndexs)
+
+    maxindex = 1
+    for indexs in postIndexs:
+        if len(indexs) > maxindex:
+            maxindex = len(indexs)
+    for indexs in commentIndexs:
+        if len(indexs) > maxindex:
+            maxindex = len(indexs)
+    print 'maxindex: ', maxindex
+
+
 
