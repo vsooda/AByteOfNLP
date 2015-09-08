@@ -33,13 +33,17 @@ def linesfilter(postName, commentName, postfix):
     commentTextLines = _getTextList(commentLine)
     postLineWrite = []
     commentLineWrite = []
+    maxlen = 200
     for i in xrange(len(postTextLines)):
+        if len(postTextLines[i]) > maxlen or len(commentTextLines[i]) > maxlen :
+            print postTextLines[i], len(postTextLines[i])
+            print 'too long ', i
+            continue
         text = postTextLines[i]
         templine = Filter.urlFilter(text)
         templine = Filter.spaceFilter(templine)
         postLineWrite.append(templine + '\n')
 
-    for i in xrange(len(commentTextLines)):
         text = commentTextLines[i]
         templine = Filter.urlFilter(text)
         templine = Filter.spaceFilter(templine)

@@ -10,7 +10,7 @@ import _init_paths
 import os
 
 
-def buildWordVocab(postLists, commentLists, wordCountThreshold = 3):
+def buildWordVocab(postLists, commentLists, wordCountThreshold = 6):
     wordCounts = {}
     nsents = 0
     t0 = time.time()
@@ -156,6 +156,8 @@ def cut2index(postFilename, commentFilename):
         if len(indexs) > maxindex:
             maxindex = len(indexs)
     print 'maxindex: ', maxindex
+
+    #return vocab, postIndexs, commentIndexs
 
 
 
