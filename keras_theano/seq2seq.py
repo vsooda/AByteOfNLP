@@ -75,7 +75,9 @@ def batchSeq2seq(X, Y, max_features, maxlen):
             ix = indexs[i]
             X_samples.append(X[ix])
             Y_samples.append(Y[ix])
-            print(ix)
+            #print(ix)
+
+        print('sample num ', len(X_samples))
 
         xs = np.asarray(X_samples)
         Y_samples = map(lambda x:map(to_one_hot, x), Y_samples)

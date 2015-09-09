@@ -16,6 +16,20 @@ def to_one_hot(id):
     zeros[id] = 1
     return zeros
 
+def batch_test(X, Y, maxFetures, maxlen):
+    batchSeq2seq(X, Y, maxFeatures, maxlen)
+
+def test(X, Y, maxFeatures, maxlen):
+    #for indexs in X:
+    #    print 'lenindex: ', len(indexs), ' '.join(str(x) for x in indexs)
+    xs = np.asarray(X)
+    Y = map(lambda x: map(to_one_hot, x), Y)
+    ys = np.asarray(Y)
+    print 'maxfeature, maxlen: ',  maxFeatures, maxlen
+    print("XS Shape: ", xs.shape)
+    print("YS Shape: ", ys.shape)
+    seq2seq(xs, ys, maxFeatures, maxlen)
+
 if __name__ == "__main__":
     #pickle_test()
     stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
@@ -34,19 +48,10 @@ if __name__ == "__main__":
     maxCommentLen = max(map(len, (x for x in commentIndexs)))
     maxlen = max(maxPostLen, maxCommentLen)
 
-    X = pad_sequences(postIndexs, maxlen)
-    Y = pad_sequences(commentIndexs, maxlen)
-
+    X = pad_sequences(postIndexs, maxlen, 'int32', 'post', 'post')
+    Y = pad_sequences(commentIndexs, maxlen, 'int32', 'post', 'post')
+    #Y = pad_sequences(commentIndexs, maxlen)
 
     print 'after padd'
-    #for indexs in X:
-    #    print 'lenindex: ', len(indexs), ' '.join(str(x) for x in indexs)
-    #xs = np.asarray(X)
-    #Y = map(lambda x: map(to_one_hot, x), Y)
-    #ys = np.asarray(Y)
-    #print 'maxfeature, maxlen: ',  maxFeatures, maxlen
-    #print("XS Shape: ", xs.shape)
-    #print("YS Shape: ", ys.shape)
-    #seq2seq(xs, ys, maxFeatures, maxlen)
-    batchSeq2seq(X, Y, maxFeatures, maxlen)
-
+    batch_test(X, Y, maxFeatures, maxlen / 2)
+    #test(X, Y, maxFeatures, maxlen)
