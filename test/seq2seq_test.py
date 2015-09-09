@@ -39,7 +39,7 @@ if __name__ == "__main__":
     commentFileFiltered = commentFile + cfg.FILTER_POSTFIX
 #    print postFileFiltered
     vocab, postIndexs, commentIndexs = cut2index(postFileFiltered, commentFileFiltered)
-    vocab = vocab + ['#END#']
+    vocab = vocab + ['UNK', '#END#']
     #for indexs in postIndexs:
     #    print ' '.join(str(x) for x in indexs)
 
@@ -53,5 +53,5 @@ if __name__ == "__main__":
     #Y = pad_sequences(commentIndexs, maxlen)
 
     print 'after padd'
-    batch_test(X, Y, maxFeatures, maxlen / 2)
+    batch_test(X, Y, maxFeatures, maxlen)
     #test(X, Y, maxFeatures, maxlen)

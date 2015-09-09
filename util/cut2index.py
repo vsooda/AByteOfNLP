@@ -10,7 +10,7 @@ import _init_paths
 import os
 
 
-def buildWordVocab(postLists, commentLists, wordCountThreshold = 10):
+def buildWordVocab(postLists, commentLists, wordCountThreshold = 12):
     wordCounts = {}
     nsents = 0
     t0 = time.time()
@@ -42,8 +42,10 @@ def buildWordIndex(vocab):
         wordtoix[w] = ix
         ixtoword[ix] = w
         ix += 1
-    ixtoword[ix] = '#END#'
-    wordtoix['#START#'] = ix
+    ixtoword[ix] = 'UNK'
+    wordtoix['#UNK#'] = ix
+    ixtoword[ix+1] = '#EOS#'
+    wordtoix['#EOS#'] = ix+1
 
     return ixtoword, wordtoix
 
@@ -59,12 +61,14 @@ def buildSentenceIndex(postLists, commentLists, word2ix):
     #print len(postLists[0])
     #just ingnore the symbol which is not in the vocab
     for words in postLists:
-        indexs = [vocabSize] + [word2ix[w] for w in words if w in word2ix ]
+        #indexs = [vocabSize] + [word2ix[w] for w in words if w in word2ix ]
+        #torch translator
+        indexs =[word2ix[w] if w in word2ix else vocabSize-1 for w in reversed(words)] +[vocabSize]
         #print ', '.join(words)
         #print ' '.join(str(x) for x in indexs)
         postIndexs.append(indexs)
     for words in commentLists:
-        indexs =[word2ix[w] for w in words if w in word2ix ] +[vocabSize]
+        indexs =[word2ix[w] if w in word2ix else vocabSize-1 for w in reversed(words)] +[vocabSize]
         #print ' '.join(words)
         #print ' '.join(str(x) for x in indexs)
         commentIndexs.append(indexs)
@@ -75,16 +79,19 @@ def writeIndexFile(postIndexName, postIndexs, commentIndexName, commentIndexs):
     print 'writing index file ', len(postIndexs), postIndexName, commentIndexName
     assert(len(postIndexs) == len(commentIndexs))
     fpostIndex = open(postIndexName, 'w')
-    maxlen = 30
+    maxlen = 20
     for indexs in postIndexs:
         if len(indexs) > maxlen:
-            indexs = indexs[:maxlen]
+            endsysbol = indexs[len(indexs) - 1]
+            indexs = indexs[:maxlen-1] + [endsysbol]
         text = ' '.join(str(x) for x in indexs) + '\n'
         fpostIndex.write(text)
     fcommentIndex = open(commentIndexName, 'w')
     for indexs in commentIndexs:
         if len(indexs) > maxlen:
-            indexs = indexs[:maxlen]
+            endsysbol = indexs[len(indexs) - 1]
+            indexs = indexs[:maxlen-1] + [endsysbol]
+            #indexs = indexs[:maxlen]
         text = ' '.join(str(x) for x in indexs) + '\n'
         fcommentIndex.write(text)
 
