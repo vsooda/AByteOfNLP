@@ -68,7 +68,7 @@ def buildSentenceIndex(postLists, commentLists, word2ix):
         #print ' '.join(str(x) for x in indexs)
         postIndexs.append(indexs)
     for words in commentLists:
-        indexs =[word2ix[w] if w in word2ix else vocabSize-1 for w in reversed(words)] +[vocabSize]
+        indexs =[word2ix[w] if w in word2ix else vocabSize-1 for w in words] +[vocabSize]
         #print ' '.join(words)
         #print ' '.join(str(x) for x in indexs)
         commentIndexs.append(indexs)
