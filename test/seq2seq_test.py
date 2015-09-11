@@ -43,6 +43,9 @@ if __name__ == "__main__":
     #for indexs in postIndexs:
     #    print ' '.join(str(x) for x in indexs)
 
+    postIndexs = postIndexs[1:100]
+    commentIndex = commentIndex[1:100]
+
     maxFeatures = len(vocab) + 1
     maxPostLen = max(map(len, (x for x in postIndexs)))
     maxCommentLen = max(map(len, (x for x in commentIndexs)))
@@ -53,5 +56,5 @@ if __name__ == "__main__":
     #Y = pad_sequences(commentIndexs, maxlen)
 
     print 'after padd'
-    batch_test(X, Y, maxFeatures, maxlen)
-    #test(X, Y, maxFeatures, maxlen)
+    #batch_test(X, Y, maxFeatures, maxlen)
+    test(X, Y, maxFeatures, maxlen)
