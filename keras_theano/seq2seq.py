@@ -12,6 +12,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Activation, RepeatVector, TimeDistributedDense
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM, GRU
+from keras.preprocessing.sequence import pad_sequences
 
 import logging
 import datetime
@@ -19,7 +20,7 @@ import datetime
 
 #all return with list format
 def readDataFile(vocabName, postIndexName, commentIndexName):
-    fvocab = open(vocab, 'r')
+    fvocab = open(vocabName, 'r')
     vocabLines = fvocab.readlines()
     vocab = []
     for w in vocabLines:
@@ -29,12 +30,27 @@ def readDataFile(vocabName, postIndexName, commentIndexName):
     fpostIndex = open(postIndexName, 'r')
     postIndexLines = fpostIndex.readlines()
     postIndexs = []
-    for lines in postIndexs:
-        lines = lines.strip()
-        indexs = lines.split(' ')
+    for line in postIndexLines:
+        line = line.strip()
+        indexs = line.split(' ')
+        int_indexs = [ int(x) for x in indexs]
+        postIndexs.append(int_indexs)
 
+    #for line in postIndexs:
+    #    print(' '.join(str(x) for x in line))
+
+    fcommentIndex = open(commentIndexName, 'r')
+    commentIndexLines = fcommentIndex.readlines()
     commentIndexs = []
-    return vacab, postIndex, commentIndex
+    i = 1
+    for line in commentIndexLines:
+        line = line.strip()
+        indexs = line.split(' ')
+        int_indexs = [ int(x) for x in indexs]
+        commentIndexs.append(int_indexs)
+        print(i, ' '.join(indexs))
+
+    return vocab, postIndexs, commentIndexs
 
 #batch model, input the origin index data, and then sample,
 #then generator the np.array to calculate
@@ -139,12 +155,12 @@ def seq2seq(xs, ys, max_features, maxlen):
 
     print("at: " + str(datetime.datetime.now()))
 
+def to_one_hot(id):
+    zeros = [0] * maxFeatures
+    zeros[id] = 1
+    return zeros
 
 def seq_test(xs, ys, max_features, maxlen):
-    def to_one_hot(id):
-        zeros = [0] * max_features
-        zeros[id] = 1
-        return zeros
     xs = np.asarray(xs)
     ys = map(lambda x: map(to_one_hot, x), ys)
     ys = np.asarray(ys)
@@ -155,7 +171,7 @@ def seq_test(xs, ys, max_features, maxlen):
 def seq_batch_test(X, Y, max_features, maxlen):
     batchSeq2seq(X, Y, max_features, maxlen)
 
-if __name__ == '__main__':
+def simple_num_driver():
     print("Started at: " + str(datetime.datetime.now()))
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     logger = logging.getLogger()
@@ -172,6 +188,30 @@ if __name__ == '__main__':
     ys = xs
     seq_test(xs, ys, max_features, maxlen)
     #seq_batch_test(xs, ys, max_features, maxlen)
+
+if __name__ == '__main__':
+    #simple_num_driver()
+    vocab, postIndexs, commentIndexs = readDataFile('../test/cache/vocab', '../test/cache/comment', '../test/cache/post')
+    vocab = vocab + ['UNK', '#END#']
+
+    maxFeatures = len(vocab) + 1
+    maxPostLen = max(map(len, (x for x in postIndexs)))
+    maxCommentLen = max(map(len, (x for x in commentIndexs)))
+    maxlen = max(maxPostLen, maxCommentLen)
+
+    X = pad_sequences(postIndexs, maxlen, 'int32', 'post', 'post')
+    Y = pad_sequences(commentIndexs, maxlen, 'int32', 'post', 'post')
+    #Y = pad_sequences(commentIndexs, maxlen)
+
+    #print 'after padd'
+    #batch_test(X, Y, maxFeatures, maxlen)
+    xs = np.asarray(X)
+    Y = map(lambda x: map(to_one_hot, x), Y)
+    ys = np.asarray(Y)
+    print('maxfeature, maxlen: ',  maxFeatures, maxlen)
+    print("XS Shape: ", xs.shape)
+    print("YS Shape: ", ys.shape)
+    seq2seq(xs, ys, maxFeatures, maxlen)
 
 
 
