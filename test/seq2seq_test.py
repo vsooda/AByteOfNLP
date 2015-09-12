@@ -61,21 +61,6 @@ def seq_batch_driver(X, Y, max_features, maxlen):
     batchSeq2seq(X, Y, max_features, maxlen)
 
 
-
-#def batch_test(X, Y, maxFetures, maxlen):
-#    batchSeq2seq(X, Y, max_features, maxlen)
-#
-#def test(X, Y, max_features, maxlen):
-#    #for indexs in X:
-#    #    print 'lenindex: ', len(indexs), ' '.join(str(x) for x in indexs)
-#    xs = np.asarray(X)
-#    Y = map(lambda x: map(to_one_hot, x), Y)
-#    ys = np.asarray(Y)
-#    print 'maxfeature, maxlen: ',  max_features, maxlen
-#    print("XS Shape: ", xs.shape)
-#    print("YS Shape: ", ys.shape)
-#    seq2seq(xs, ys, max_features, maxlen)
-
 def cacheDriver():
     vocab, postIndexs, commentIndexs = readDataFile('cache/vocab', 'cache/comment', 'cache/post')
     vocab = vocab + ['UNK', '#END#']
