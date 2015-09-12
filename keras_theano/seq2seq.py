@@ -18,40 +18,6 @@ import logging
 import datetime
 
 
-#all return with list format
-def readDataFile(vocabName, postIndexName, commentIndexName):
-    fvocab = open(vocabName, 'r')
-    vocabLines = fvocab.readlines()
-    vocab = []
-    for w in vocabLines:
-        w = w.strip()
-        vocab.append(w)
-
-    fpostIndex = open(postIndexName, 'r')
-    postIndexLines = fpostIndex.readlines()
-    postIndexs = []
-    for line in postIndexLines:
-        line = line.strip()
-        indexs = line.split(' ')
-        int_indexs = [ int(x) for x in indexs]
-        postIndexs.append(int_indexs)
-
-    #for line in postIndexs:
-    #    print(' '.join(str(x) for x in line))
-
-    fcommentIndex = open(commentIndexName, 'r')
-    commentIndexLines = fcommentIndex.readlines()
-    commentIndexs = []
-    i = 1
-    for line in commentIndexLines:
-        line = line.strip()
-        indexs = line.split(' ')
-        int_indexs = [ int(x) for x in indexs]
-        commentIndexs.append(int_indexs)
-        print(i, ' '.join(indexs))
-
-    return vocab, postIndexs, commentIndexs
-
 #batch model, input the origin index data, and then sample,
 #then generator the np.array to calculate
 def batchSeq2seq(X, Y, max_features, maxlen):
@@ -155,21 +121,6 @@ def seq2seq(xs, ys, max_features, maxlen):
 
     print("at: " + str(datetime.datetime.now()))
 
-def to_one_hot(id):
-    zeros = [0] * maxFeatures
-    zeros[id] = 1
-    return zeros
-
-def seq_test(xs, ys, max_features, maxlen):
-    xs = np.asarray(xs)
-    ys = map(lambda x: map(to_one_hot, x), ys)
-    ys = np.asarray(ys)
-    print("XS Shape: ", xs.shape)
-    print("YS Shape: ", ys.shape)
-    seq2seq(xs, ys, max_features, maxlen)
-
-def seq_batch_test(X, Y, max_features, maxlen):
-    batchSeq2seq(X, Y, max_features, maxlen)
 
 def simple_num_driver():
     print("Started at: " + str(datetime.datetime.now()))
@@ -186,32 +137,18 @@ def simple_num_driver():
         new_x = r[::]
         xs.append(new_x)
     ys = xs
-    seq_test(xs, ys, max_features, maxlen)
-    #seq_batch_test(xs, ys, max_features, maxlen)
-
-if __name__ == '__main__':
-    #simple_num_driver()
-    vocab, postIndexs, commentIndexs = readDataFile('../test/cache/vocab', '../test/cache/comment', '../test/cache/post')
-    vocab = vocab + ['UNK', '#END#']
-
-    maxFeatures = len(vocab) + 1
-    maxPostLen = max(map(len, (x for x in postIndexs)))
-    maxCommentLen = max(map(len, (x for x in commentIndexs)))
-    maxlen = max(maxPostLen, maxCommentLen)
-
-    X = pad_sequences(postIndexs, maxlen, 'int32', 'post', 'post')
-    Y = pad_sequences(commentIndexs, maxlen, 'int32', 'post', 'post')
-    #Y = pad_sequences(commentIndexs, maxlen)
-
-    #print 'after padd'
-    #batch_test(X, Y, maxFeatures, maxlen)
-    xs = np.asarray(X)
-    Y = map(lambda x: map(to_one_hot, x), Y)
-    ys = np.asarray(Y)
-    print('maxfeature, maxlen: ',  maxFeatures, maxlen)
+    xs = np.asarray(xs)
+    def to_one_hot(id):
+        zeros = [0] * max_features
+        zeros[id] = 1
+        return zeros
+    ys = map(lambda x: map(to_one_hot, x), ys)
+    ys = np.asarray(ys)
     print("XS Shape: ", xs.shape)
     print("YS Shape: ", ys.shape)
-    seq2seq(xs, ys, maxFeatures, maxlen)
+    seq2seq(xs, ys, max_features, maxlen)
 
+if __name__ == '__main__':
+    simple_num_driver()
 
 
