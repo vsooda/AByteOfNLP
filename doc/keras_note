@@ -1,0 +1,9 @@
+1. keras layer inherent is: object -> layer -> maskedLayer -> recurrent -> lstm, gru and so on
+
+2. Layer define two function mainly: get_output, get_input. get_output define how to caculate in this layer. get_input define where the data come from. in general, the input data come from last layer. The class Seqential combine all layer in a list. so we can find the last layer.
+
+3. maskedLayer offer two function: get_input_mask, get_output_mask. the class extend maskedLayer will deal with the padd zero. but the mask is the input mask in general. if want the mask about the output, need to define a new class.
+
+4. model.compile do some initial work. the loss caculate with weights which will take all zero into accounts. so it is the method to deal with not equal length output??
+
+5. in model class, it will also define optimizer and _fit will call _train to train the model with compile params.
