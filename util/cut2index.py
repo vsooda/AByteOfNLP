@@ -10,7 +10,7 @@ import _init_paths
 import os
 
 
-def buildWordVocab(postLists, commentLists, wordCountThreshold = 12):
+def buildWordVocab(postLists, commentLists, wordCountThreshold = 2):
     wordCounts = {}
     nsents = 0
     t0 = time.time()

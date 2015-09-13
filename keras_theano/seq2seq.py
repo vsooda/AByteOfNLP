@@ -74,7 +74,7 @@ def batchSeq2seq(X, Y, max_features, maxlen):
         for x, y, p in zip(X_train, y_train, preds):
             if p.max() > 0 and cnt < 5:
                 print("X   :", " ".join(map(str, x)))
-                print("Y   :", " ".join(map(str, map(lambda y: max(y), y))))
+                print("Y   :", " ".join(map(str, map(lambda y: np.asarray(y).argmax(), y))))
                 print("Pred:", " ".join(map(str, map(lambda p: np.asarray(p).argmax(), p))))
                 cnt += 1
 
@@ -112,7 +112,7 @@ def seq2seq(xs, ys, max_features, maxlen):
         for x, y, p in zip(X_train, y_train, preds):
             if p.max() > 0 and cnt < 5:
                 print("X   :", " ".join(map(str, x)))
-                print("Y   :", " ".join(map(str, map(lambda y: max(y), y))))
+                print("Y   :", " ".join(map(str, map(lambda y: np.asarray(y).argmax(), y))))
                 print("Pred:", " ".join(map(str, map(lambda p: np.asarray(p).argmax(), p))))
                 cnt += 1
 
