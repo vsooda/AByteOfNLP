@@ -45,29 +45,7 @@ def readDataFile(vocabName, postIndexName, commentIndexName):
 
     return vocab, postIndexs, commentIndexs
 
-def seq_driver(xs, ys, max_features, maxlen):
-    def to_one_hot(id):
-        zeros = [0] * max_features
-        zeros[id] = 1
-        return zeros
-    xs = np.asarray(xs)
-    ys = map(lambda x: map(to_one_hot, x), ys)
-    ys = np.asarray(ys)
-    print("XS Shape: ", xs.shape)
-    print("YS Shape: ", ys.shape)
-    seq2seq(xs, ys, max_features, maxlen)
-
-def seq_batch_driver(X, Y, max_features, maxlen):
-    batchSeq2seq(X, Y, max_features, maxlen)
-
-
-def cache_driver():
-    root_dir = cfg.ROOT_DIR
-    vocabfile = os.path.join(root_dir, 'data/cache/vocab')
-    postfile = os.path.join(root_dir, 'data/cache/post')
-    commentfile = os.path.join(root_dir, 'data/cache/comment')
-    print vocabfile
-    vocab, postIndexs, commentIndexs = readDataFile(vocabfile, postfile, commentfile)
+def seq_driver(vocab, postIndexs, commentIndexs):
     vocab = ['0'] + vocab + ['UNK', 'END']
     #the first feature is none. this feature will be problem in the last full connect layer??
 
@@ -97,34 +75,32 @@ def cache_driver():
     print("YS Shape: ", ys.shape)
     seq2seq(xs, ys, max_features, maxlen, vocab)
 
+def seq_batch_driver(X, Y, max_features, maxlen):
+    batchSeq2seq(X, Y, max_features, maxlen)
+
+
+def cache_driver():
+    root_dir = cfg.ROOT_DIR
+    vocabfile = os.path.join(root_dir, 'data/cache/vocab')
+    postfile = os.path.join(root_dir, 'data/cache/post')
+    commentfile = os.path.join(root_dir, 'data/cache/comment')
+    print vocabfile
+    vocab, postIndexs, commentIndexs = readDataFile(vocabfile, postfile, commentfile)
+    seq_driver(vocab, postIndexs, commentIndexs)
+
 def total_test():
     stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
     postFile = os.path.join(stcpath, cfg.POST_FILENAME)
     commentFile = os.path.join(stcpath, cfg.COMMENT_FILENAME)
     postFileFiltered = postFile + cfg.FILTER_POSTFIX
     commentFileFiltered = commentFile + cfg.FILTER_POSTFIX
-#    print postFileFiltered
     vocab, postIndexs, commentIndexs = cut2index(postFileFiltered, commentFileFiltered)
-    vocab = ['0'] + vocab + ['UNK', '#END#']
-
     postIndexs = postIndexs[1:100]
     commentIndexs = commentIndexs[1:100]
-
-    max_features = len(vocab)
-    maxPostLen = max(map(len, (x for x in postIndexs)))
-    maxCommentLen = max(map(len, (x for x in commentIndexs)))
-    maxlen = max(maxPostLen, maxCommentLen)
-
-    X = pad_sequences(postIndexs, maxlen, 'int32', 'post', 'post')
-    Y = pad_sequences(commentIndexs, maxlen, 'int32', 'post', 'post')
-    #Y = pad_sequences(commentIndexs, maxlen)
-
-    print 'after padd'
-    #seq_batch_driver(X, Y, max_features, maxlen)
-    seq_driver(X, Y, max_features, maxlen)
+    seq_driver(vocab, postIndexs, commentIndexs)
 
 if __name__ == "__main__":
     #pickle_test()
-    #cache_driver()
-    total_test()
+    cache_driver()
+    #total_test()
 
