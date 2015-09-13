@@ -150,5 +150,3 @@ def simple_num_driver():
 
 if __name__ == '__main__':
     simple_num_driver()
-
-

@@ -41,7 +41,7 @@ def readDataFile(vocabName, postIndexName, commentIndexName):
         indexs = line.split(' ')
         int_indexs = [ int(x) for x in indexs]
         commentIndexs.append(int_indexs)
-        print(i, ' '.join(indexs))
+        #print(i, ' '.join(indexs))
 
     return vocab, postIndexs, commentIndexs
 
@@ -62,7 +62,12 @@ def seq_batch_driver(X, Y, max_features, maxlen):
 
 
 def cacheDriver():
-    vocab, postIndexs, commentIndexs = readDataFile('cache/vocab', 'cache/comment', 'cache/post')
+    root_dir = cfg.ROOT_DIR
+    vocabfile = os.path.join(root_dir, 'data/cache/vocab')
+    postfile = os.path.join(root_dir, 'data/cache/post')
+    commentfile = os.path.join(root_dir, 'data/cache/comment')
+    print vocabfile
+    vocab, postIndexs, commentIndexs = readDataFile(vocabfile, postfile, commentfile)
     vocab = vocab + ['UNK', '#END#']
 
     max_features = len(vocab) + 1

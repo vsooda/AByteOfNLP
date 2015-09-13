@@ -23,12 +23,17 @@ def buildWordVocab(postLists, commentLists, wordCountThreshold = 12):
     #for k, v in wordCounts.items():
     #    print k, v
     vocab = [w for w in wordCounts if wordCounts[w] >= wordCountThreshold]
-    fvocab = open('vocab', 'w')
+    stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
+    vocabfile = os.path.join(stcpath, 'vocab')
+    wordcountfile = os.path.join(stcpath, 'wordcount.pkl')
+    print 'save vocab file ', vocabfile
+
+    fvocab = open(vocabfile, 'w')
     for v in vocab:
         fvocab.write(v+'\n')
 
     print 'filtered words from %d to %d in %.2fs' % (len(wordCounts), len(vocab), time.time() - t0)
-    pickle.dump(wordCounts, open('wordcount.pkl', 'wb'))
+    pickle.dump(wordCounts, open(wordcountfile, 'wb'))
 
     return vocab
 
