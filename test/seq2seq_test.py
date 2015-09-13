@@ -61,16 +61,20 @@ def seq_batch_driver(X, Y, max_features, maxlen):
     batchSeq2seq(X, Y, max_features, maxlen)
 
 
-def cacheDriver():
+def cache_driver():
     root_dir = cfg.ROOT_DIR
     vocabfile = os.path.join(root_dir, 'data/cache/vocab')
     postfile = os.path.join(root_dir, 'data/cache/post')
     commentfile = os.path.join(root_dir, 'data/cache/comment')
     print vocabfile
     vocab, postIndexs, commentIndexs = readDataFile(vocabfile, postfile, commentfile)
-    vocab = vocab + ['UNK', '#END#']
+    vocab = ['0'] + vocab + ['UNK', 'END']
+    #the first feature is none. this feature will be problem in the last full connect layer??
 
-    max_features = len(vocab) + 1
+    max_features = len(vocab)
+    #for i in range(max_features):
+    #    print i, vocab[i]
+
     maxPostLen = max(map(len, (x for x in postIndexs)))
     maxCommentLen = max(map(len, (x for x in commentIndexs)))
     maxlen = max(maxPostLen, maxCommentLen)
@@ -91,7 +95,7 @@ def cacheDriver():
     print('maxfeature, maxlen: ',  max_features, maxlen)
     print("XS Shape: ", xs.shape)
     print("YS Shape: ", ys.shape)
-    seq2seq(xs, ys, max_features, maxlen)
+    seq2seq(xs, ys, max_features, maxlen, vocab)
 
 def total_test():
     stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
@@ -101,14 +105,12 @@ def total_test():
     commentFileFiltered = commentFile + cfg.FILTER_POSTFIX
 #    print postFileFiltered
     vocab, postIndexs, commentIndexs = cut2index(postFileFiltered, commentFileFiltered)
-    vocab = vocab + ['UNK', '#END#']
-    #for indexs in postIndexs:
-    #    print ' '.join(str(x) for x in indexs)
+    vocab = ['0'] + vocab + ['UNK', '#END#']
 
     postIndexs = postIndexs[1:100]
-    commentIndex = commentIndex[1:100]
+    commentIndexs = commentIndexs[1:100]
 
-    max_features = len(vocab) + 1
+    max_features = len(vocab)
     maxPostLen = max(map(len, (x for x in postIndexs)))
     maxCommentLen = max(map(len, (x for x in commentIndexs)))
     maxlen = max(maxPostLen, maxCommentLen)
@@ -123,5 +125,6 @@ def total_test():
 
 if __name__ == "__main__":
     #pickle_test()
-    cacheDriver()
+    #cache_driver()
+    total_test()
 

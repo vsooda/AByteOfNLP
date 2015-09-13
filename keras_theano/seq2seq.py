@@ -1,8 +1,5 @@
 #https://raw.githubusercontent.com/simonhughes22/PythonNlpResearch/master/Experiments/CoralBleachingAnnotated/RecurrentNeuralNetwork/keras_seq2seq_test.py
 
-'''
-input: vocab, postIndex, commentIndex
-'''
 
 from __future__ import absolute_import
 from __future__ import print_function
@@ -83,7 +80,7 @@ def batchSeq2seq(X, Y, max_features, maxlen):
 
     print("at: " + str(datetime.datetime.now()))
 
-def seq2seq(xs, ys, max_features, maxlen):
+def seq2seq(xs, ys, max_features, maxlen, vocab = None):
     batch_size = 16
     embedding_size = 32
     hidden_size = 512
@@ -110,10 +107,15 @@ def seq2seq(xs, ys, max_features, maxlen):
 
         cnt = 0
         for x, y, p in zip(X_train, y_train, preds):
-            if p.max() > 0 and cnt < 5:
-                print("X   :", " ".join(map(str, x)))
-                print("Y   :", " ".join(map(str, map(lambda y: np.asarray(y).argmax(), y))))
-                print("Pred:", " ".join(map(str, map(lambda p: np.asarray(p).argmax(), p))))
+            if p.max() > 0 and cnt < 10:
+                if vocab == None:
+                    print("X   :", " ".join(map(str, x)))
+                    print("Y   :", " ".join(map(str, map(lambda y: np.asarray(y).argmax(), y))))
+                    print("Pred:", " ".join(map(str, map(lambda p: np.asarray(p).argmax(), p))))
+                else:
+                    print("X   :", " ".join(map(lambda x: vocab[x], x)))
+                    print("Y   :", " ".join(map(lambda y: vocab[np.asarray(y).argmax()], y)))
+                    print("Pred:", " ".join(map(lambda p: vocab[np.asarray(p).argmax()], p)))
                 cnt += 1
 
         iterations += 1
