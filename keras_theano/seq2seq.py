@@ -14,7 +14,6 @@ from keras.preprocessing.sequence import pad_sequences
 import logging
 import datetime
 
-
 #batch model, input the origin index data, and then sample,
 #then generator the np.array to calculate
 def batchSeq2seq(X, Y, max_features, maxlen):
