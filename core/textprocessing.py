@@ -11,7 +11,7 @@ import xlrd
 import jieba
 import jieba.posseg
 import csv
-jieba.load_userdict('../data/userdict.txt') #Load user dictionary to increse segmentation accuracy
+jieba.load_userdict('../data/review/userdict.txt') #Load user dictionary to increse segmentation accuracy
 
 
 def get_excel_data(filepath, sheetnum, colnum, para):
@@ -65,6 +65,37 @@ def get_txt_data(filepath, para):
         return txt_data2
 
 
+def segmentation(sentence, para):
+    if para == 'str':
+        seg_list = jieba.cut(sentence)
+        seg_result = ' '.join(seg_list)
+        return seg_result
+    elif para == 'list':
+        seg_list2 = jieba.cut(sentence)
+        seg_result2 = []
+        for w in seg_list2:
+            seg_result2.append(w)
+        return seg_result2
+
+
+def postagger(sentence, para):
+    if para == 'list':
+        pos_data1 = jieba.posseg.cut(sentence)
+        pos_list = []
+        for w in pos_data1:
+             pos_list.append((w.word, w.flag)) #make every word and tag as a tuple and add them to a list
+        return pos_list
+    elif para == 'str':
+        pos_data2 = jieba.posseg.cut(sentence)
+        pos_list2 = []
+        for w2 in pos_data2:
+            pos_list2.extend([w2.word.encode('utf8'), w2.flag])
+        pos_str = ' '.join(pos_list2)
+        return pos_str
+
+
+
+
 """ Maybe this algorithm will have bugs in it """
 def cut_sentences_1(words):
     #words = (words).decode('utf8')
@@ -116,7 +147,7 @@ def seg_fil_excel(filepath, sheetnum, colnum):
         review_data.append(segmentation(cell, 'list')) # Seg every reivew
 
     # Read txt file contain stopwords
-    stopwords = get_txt_data('../data/stopword.txt', 'lines')
+    stopwords = get_txt_data('../data/review/stopword.txt', 'lines')
 
     # Filter stopwords from reviews
     seg_fil_result = []
@@ -135,7 +166,7 @@ def seg_fil_senti_excel(filepath, sheetnum, colnum):
         review_data.append(segmentation(cell, 'list')) # Seg every reivew
 
     # Read txt file contain sentiment stopwords
-    sentiment_stopwords = get_txt_data('/home/sooda/nlp/Review-Helpfulness-Prediction/data/seniment_test/sentiment_stopword.txt', 'lines')
+    sentiment_stopwords = get_txt_data('../data/review/sentiment_stopword.txt', 'lines')
 
     # Filter stopwords from reviews
     seg_fil_senti_result = []

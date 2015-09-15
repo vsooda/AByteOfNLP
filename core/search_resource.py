@@ -7,7 +7,7 @@ import math
 
 class ResourcesIndex :
     def __init__(self):
-        self.resources = tp.get_csv_data('../data/resources.csv', 4)
+        self.resources = tp.get_csv_data('../data/review/resources.csv', 4)
 
     def constructDict(self):
         keywords =  []
@@ -18,7 +18,7 @@ class ResourcesIndex :
                 keywords = keywords + words
         keywords = list(set(keywords))
         #writing to user dict
-        pDict = open('../data/dict.tmp', 'wb+')
+        pDict = open('../data/review/dict.tmp', 'wb+')
         firstline = True
         for k in keywords:
             if not firstline:

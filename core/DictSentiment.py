@@ -7,15 +7,15 @@ import textprocessing as tp
 
 class DictSentiment:
     def __init__(self):
-        self.posdict = tp.get_txt_data("../data/posdict.txt","lines")
-        self.negdict = tp.get_txt_data("../data/negdict.txt","lines")
-        self.mostdict = tp.get_txt_data('../data/most.txt', 'lines')
-        self.verydict = tp.get_txt_data('../data/very.txt', 'lines')
-        self.moredict = tp.get_txt_data('../data/more.txt', 'lines')
-        self.ishdict = tp.get_txt_data('../data/ish.txt', 'lines')
-        self.insufficientdict = tp.get_txt_data('../data/insufficiently.txt', 'lines')
-        self.inversedict = tp.get_txt_data('../data/inverse.txt', 'lines')
-        self.stopwords = tp.get_txt_data('../data/sentiment_stopword.txt', 'lines')
+        self.posdict = tp.get_txt_data("../data/review/posdict.txt","lines")
+        self.negdict = tp.get_txt_data("../data/review/negdict.txt","lines")
+        self.mostdict = tp.get_txt_data('../data/review/most.txt', 'lines')
+        self.verydict = tp.get_txt_data('../data/review/very.txt', 'lines')
+        self.moredict = tp.get_txt_data('../data/review/more.txt', 'lines')
+        self.ishdict = tp.get_txt_data('../data/review/ish.txt', 'lines')
+        self.insufficientdict = tp.get_txt_data('../data/review/insufficiently.txt', 'lines')
+        self.inversedict = tp.get_txt_data('../data/review/inverse.txt', 'lines')
+        self.stopwords = tp.get_txt_data('../data/review/sentiment_stopword.txt', 'lines')
 
 
     def match(self, word, sentiment_value):

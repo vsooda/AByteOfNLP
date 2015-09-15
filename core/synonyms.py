@@ -7,8 +7,8 @@ class Synonyms:
         print 'synonyms'
 
     def constructSynonymsDict(self):
-        pfile = open('../data/tyccl.txt', 'r')
-        synoIndex = open('../data/synoindex.txt', 'wb+')
+        pfile = open('../data/review/tyccl.txt', 'r')
+        synoIndex = open('../data/review/synoindex.txt', 'wb+')
         txt = pfile.readlines()
         txt = ''.join(txt)
         txt = txt.strip()
@@ -34,7 +34,7 @@ class Synonyms:
                 synoIndex.write('\n')
 
     def readSynonyms(self):
-        pfile = open('../data/synoindex.txt', 'r')
+        pfile = open('../data/review/synoindex.txt', 'r')
         txt = pfile.readlines()
         txt = ''.join(txt)
         txt = txt.strip()

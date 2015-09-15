@@ -2,10 +2,10 @@
 #coding=utf-8
 #filename:testInvertIndex.py
 
-import core.search_resource as sr
 import sys
 sys.path.append('../')
 import core.synonyms as syno
+import core.search_resource as sr
 
 if __name__ == '__main__':
     reses = sr.ResourcesIndex()
