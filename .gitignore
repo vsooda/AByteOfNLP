@@ -2,3 +2,5 @@
 *.tmp
 *.pkl
 stc
+model*
+mini*

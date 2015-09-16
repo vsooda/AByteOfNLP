@@ -81,9 +81,12 @@ def seq_batch_driver(X, Y, max_features, maxlen):
 
 def cache_driver():
     root_dir = cfg.ROOT_DIR
-    vocabfile = os.path.join(root_dir, 'data/cache/vocab')
-    postfile = os.path.join(root_dir, 'data/cache/post')
-    commentfile = os.path.join(root_dir, 'data/cache/comment')
+    vocabfile = os.path.join(root_dir, 'data/cache/mini_vocab')
+    postfile = os.path.join(root_dir, 'data/cache/mini_post')
+    commentfile = os.path.join(root_dir, 'data/cache/mini_comment')
+    #vocabfile = os.path.join(root_dir, 'data/cache/vocab')
+    #postfile = os.path.join(root_dir, 'data/cache/post')
+    #commentfile = os.path.join(root_dir, 'data/cache/comment')
     print vocabfile
     vocab, postIndexs, commentIndexs = readDataFile(vocabfile, postfile, commentfile)
     seq_driver(vocab, postIndexs, commentIndexs)

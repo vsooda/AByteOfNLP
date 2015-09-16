@@ -10,9 +10,14 @@ from keras.layers.core import Dense, Activation, RepeatVector, TimeDistributedDe
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM, GRU
 from keras.preprocessing.sequence import pad_sequences
+#import six.moves.cPickle
+import os
+import cPickle as pickle
 
 import logging
 import datetime
+
+save_dir = os.path.expanduser("~/.keras/models")
 
 #batch model, input the origin index data, and then sample,
 #then generator the np.array to calculate
@@ -23,7 +28,7 @@ def batchSeq2seq(X, Y, max_features, maxlen):
         return zeros
     batch_size = 16
     embedding_size = 32
-    hidden_size = 512
+    hidden_size = 128
 
     print('Build model...')
     model = Sequential()
@@ -83,18 +88,34 @@ def seq2seq(xs, ys, max_features, maxlen, vocab = None):
     batch_size = 16
     embedding_size = 32
     hidden_size = 512
+    load_model = True
 
     print('Build model...')
-    model = Sequential()
-    model.add(Embedding(max_features, embedding_size, mask_zero=True))
-    model.add(GRU(embedding_size, hidden_size))
-    model.add(Dense(hidden_size, hidden_size))
-    model.add(Activation('relu'))
-    model.add(RepeatVector(maxlen))
-    model.add(GRU(hidden_size, hidden_size, return_sequences=True))
-    model.add(TimeDistributedDense(hidden_size, max_features, activation="softmax"))
+    if load_model:
+        print('Load model...')
+        model = Sequential()
+        model.add(Embedding(max_features, embedding_size, mask_zero=True))
+        model.add(GRU(embedding_size, hidden_size))
+        model.add(Dense(hidden_size, hidden_size))
+        model.add(Activation('relu'))
+        model.add(RepeatVector(maxlen))
+        model.add(GRU(hidden_size, hidden_size, return_sequences=True))
+        model.add(TimeDistributedDense(hidden_size, max_features, activation="softmax"))
+        model.compile(loss='binary_crossentropy', optimizer='adam', class_mode="binary")
+        model.load_weights('model.h5')
+        #model = pickle.load(open(os.path.join(save_dir, 'model.pkl'), 'rb'))
+    else :
+        model = Sequential()
+        model.add(Embedding(max_features, embedding_size, mask_zero=True))
+        model.add(GRU(embedding_size, hidden_size))
+        model.add(Dense(hidden_size, hidden_size))
+        model.add(Activation('relu'))
+        model.add(RepeatVector(maxlen))
+        model.add(GRU(hidden_size, hidden_size, return_sequences=True))
+        model.add(TimeDistributedDense(hidden_size, max_features, activation="softmax"))
 
-    model.compile(loss='binary_crossentropy', optimizer='adam', class_mode="binary")
+        model.compile(loss='binary_crossentropy', optimizer='adam', class_mode="binary")
+
 
     print("Train...")
     X_train, y_train = xs, ys
@@ -117,8 +138,19 @@ def seq2seq(xs, ys, max_features, maxlen, vocab = None):
                     print("Pred:", " ".join(map(lambda p: vocab[np.asarray(p).argmax()], p)))
                 cnt += 1
 
-        iterations += 1
         print("Iteration:", iterations)
+        if iterations % 200 == 0 :
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            #model_save_fname = 'model_%08d.pkl' %(iterations)
+            model_save_fname = 'model_9w_%09d.h5' %(iterations)
+            print('saving ', model_save_fname)
+            #six.moves.cPickle.dump(model, open(os.path.join(save_dir, model_save_fname), "wb"))
+            #pickle.dump(model, open(os.path.join(save_dir, model_save_fname), "wb"))
+            model.save_weights(model_save_fname, overwrite = True)
+
+        iterations += 1
+
 
     print("at: " + str(datetime.datetime.now()))
 
