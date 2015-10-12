@@ -6,3 +6,5 @@ model*
 mini*
 log*
 tts
+pinyin*.txt
+*.bak
