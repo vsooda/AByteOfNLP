@@ -121,7 +121,7 @@ if __name__ == '__main__':
   #print glob.glob("/home/sooda/data/tts_data/text/*.txt")
   root_dir = cfg.ROOT_DIR
 
-  save_path = os.path.join(root_dir, 'data/tts/pinyin')
+  save_path = os.path.join(root_dir, 'data/tts')
   tts_text = os.path.join(root_dir, "data/tts/text/utf")
   punt_dict = {}
   punt_path = os.path.join(root_dir, "data/review/punt_dict.txt")
