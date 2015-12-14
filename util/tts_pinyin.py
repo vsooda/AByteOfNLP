@@ -12,7 +12,8 @@ import os
 import glob
 from os import listdir
 from os.path import isfile, join
-import pinyin
+#import pinyin
+import zh_pinyin as pinyin
 import re
 
 '''
@@ -83,12 +84,45 @@ def test_punt_dict(punt_path):
       print k, v
   print punt_dict.get('。')
 
+def change_dict_format(dict_path):
+  pinyin_dict = {}
+  with open(dict_path) as f:
+      for line in f:
+          k, v = line.strip().split('\t')
+          pinyin_dict[k] = v.lower().split(" ")[0]
+          print unichr(int(k, 16)), v
+
+
+def transcript_pinyin(from_file, to_file):
+  print from_file, to_file
+  ffrom = open(from_file, 'r')
+  fto = open(to_file, 'w')
+  lines = ffrom.readlines()
+  linenum = 0
+  for words in lines:
+    print words
+    han_pinyin = pinyin.get(words, ' ')
+
+    fto.write(str(linenum)+'\n')
+    fto.write(words)
+    fto.write(han_pinyin)
+    linenum = linenum + 1
+    #res = []
+    #for w in words:
+    #  wpy = pinyin.get(w, ' ')
+    #  temp = [w] + [wpy]
+    #  res = res + temp
+    #fto.write(res)
+  ffrom.close()
+  fto.close()
+
 if __name__ == '__main__':
   #use glob can list files very easy. but need to cut the path
   #print glob.glob("/home/sooda/data/tts_data/text/*.txt")
   root_dir = cfg.ROOT_DIR
-  save_path = os.path.join(root_dir, 'data/tts')
-  tts_text = "/home/sooda/data/tts_data/text/utf"
+
+  save_path = os.path.join(root_dir, 'data/tts/pinyin')
+  tts_text = os.path.join(root_dir, "data/tts/text/utf")
   punt_dict = {}
   punt_path = os.path.join(root_dir, "data/review/punt_dict.txt")
   with open(punt_path) as f:
@@ -96,9 +130,14 @@ if __name__ == '__main__':
       k, v = line.decode('utf-8').strip().split(' ')
       punt_dict[k] = v.strip()
       #print ord(k)
-      print k, v
 
+  from_file = os.path.join(root_dir, 'data/text.txt')
+  to_file = os.path.join(root_dir, 'data/text_res1.txt')
+  transcript_pinyin(from_file, to_file)
 
-  #change_han_pinyin_dir(tts_text, save_path, punt_dict)
+  change_han_pinyin_dir(tts_text, save_path, punt_dict)
   #test_punt_dict(punt_path)
-  dump_pinyin_dict("/home/sooda/data/pinyin.txt")
+  pinyinDict = os.path.join(root_dir, 'data/pinyin.txt')
+  dump_pinyin_dict(pinyinDict)
+  dict_path = os.path.join(root_dir, 'data/pinyin.txt')
+  change_dict_format(dict_path)
