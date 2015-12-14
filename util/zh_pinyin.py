@@ -7,7 +7,7 @@ pinyin_dict = {}
 dat = os.path.join(os.path.dirname(__file__), "../data/pinyin.txt")
 with open(dat) as f:
   for line in f:
-    k, v = line.strip().split('\t')
+    k, v = line.decode('utf-8').strip().split('\t') #这里也可转可不转!因为英文和数字不需要转？？
     #pinyin_dict[k] = v.lower().split(" ")[0][:-1]
     pinyin_dict[k] = v.lower().split(" ")[0]
 

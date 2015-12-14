@@ -26,6 +26,8 @@ def change2pinyin(from_file, to_file, punt_dict):
   ffrom = open(from_file, 'r')
   words = ffrom.readline()
   print words
+  #words = words.decode("utf-8")
+  #这里转化为utf8之所以可转可不转是因为在获取拼音的代码内部有做转化utf8
   han_pinyin = pinyin.get(words, ' ')
   res = []
   for char in han_pinyin:
@@ -134,7 +136,6 @@ if __name__ == '__main__':
   from_file = os.path.join(root_dir, 'data/text.txt')
   to_file = os.path.join(root_dir, 'data/text_res1.txt')
   transcript_pinyin(from_file, to_file)
-
   change_han_pinyin_dir(tts_text, save_path, punt_dict)
   #test_punt_dict(punt_path)
   pinyinDict = os.path.join(root_dir, 'data/pinyin.txt')

@@ -111,6 +111,49 @@ def writeSegFile(postSegName, postLists, commentSegName, commentLists):
         fcommentSeg.write(text)
 
 
+def segment_word(post_lines, comment_lines):
+    postLists = []
+    for line in post_lines:
+        line = line.strip()
+        seglist = jieba.cut(line)
+        segs = []
+        for word in seglist:
+            segs.append(word)
+        postLists.append(segs)
+
+    commentLists = []
+    for line in comment_lines:
+        line = line.strip()
+        seglist = jieba.cut(line)
+        segs = []
+        for word in seglist:
+            segs.append(word)
+        commentLists.append(segs)
+
+    return postLists, commentLists
+
+def segment_syllable(post_lines, comment_lines):
+    postLists = []
+    for line in post_lines:
+        line = line.strip()
+        line = unicode(line, "utf-8") # must convert to utf8 for cutting single chinese char
+        segs = []
+        for word in line:
+            print word
+            segs.append(word)
+        postLists.append(segs)
+
+    commentLists = []
+    for line in comment_lines:
+        line = line.strip()
+        line = unicode(line, "utf-8")
+        segs = []
+        for word in line:
+            segs.append(word)
+        commentLists.append(segs)
+
+    return postLists, commentLists
+
 
 #generator new file which every word present with id
 def cut2index(postFilename, commentFilename):
@@ -120,24 +163,8 @@ def cut2index(postFilename, commentFilename):
     commentLines = fcomment.readlines()
     #assert(len(postLines) == len(commentLines));
     #postLines = postLines.decode('utf-8')
-
-    postLists = []
-    for line in postLines:
-        line = line.strip()
-        seglist = jieba.cut(line)
-        segs = []
-        for word in seglist:
-            segs.append(word)
-        postLists.append(segs)
-
-    commentLists = []
-    for line in commentLines:
-        line = line.strip()
-        seglist = jieba.cut(line)
-        segs = []
-        for word in seglist:
-            segs.append(word)
-        commentLists.append(segs)
+    #postLists, commentLists = segment_word(postLines, commentLines)
+    postLists, commentLists = segment_syllable(postLines, commentLines)
 
     print len(postLists)
     print len(commentLists)
@@ -149,8 +176,6 @@ def cut2index(postFilename, commentFilename):
         print ' '.join(ix2word[x] for x in indexs)
     for indexs in commentIndexs:
         print ' '.join(ix2word[x] for x in indexs)
-    #for indexs in commentIndexs:
-    #    print ' '.join(str(x) for x in indexs)
 
     postSegName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.POST_FILENAME) + cfg.SEG_POSTFIX
     commentSegName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.COMMENT_FILENAME) + cfg.SEG_POSTFIX
@@ -170,6 +195,4 @@ def cut2index(postFilename, commentFilename):
     print 'maxindex: ', maxindex
 
     return vocab, postIndexs, commentIndexs
-
-
 
