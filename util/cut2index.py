@@ -11,7 +11,7 @@ import os
 from charset_type import *
 
 
-def buildWordVocab(postLists, commentLists, wordCountThreshold = 2):
+def buildWordVocab(postLists, commentLists, wordCountThreshold = 5):
     wordCounts = {}
     nsents = 0
     t0 = time.time()
@@ -25,11 +25,14 @@ def buildWordVocab(postLists, commentLists, wordCountThreshold = 2):
     #    print k, v
     vocab = [w for w in wordCounts if wordCounts[w] >= wordCountThreshold]
     stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
-    vocabfile = os.path.join(stcpath, 'vocab')
+    vocabfile = os.path.join(stcpath, 'repos/vocab')
     wordcountfile = os.path.join(stcpath, 'wordcount.pkl')
     print 'save vocab file ', vocabfile
 
     fvocab = open(vocabfile, 'w')
+    fvocab.write("#START# \n")
+    fvocab.write("#END# \n")
+    fvocab.write("#UNK# \n")
     for v in vocab:
         fvocab.write(v+'\n')
 
@@ -39,19 +42,27 @@ def buildWordVocab(postLists, commentLists, wordCountThreshold = 2):
     return vocab
 
 def buildWordIndex(vocab):
+    #原本python代码中， start和end的id是0，可能会和pad产生误会？
     ixtoword = {}
     #ixtoword[0] = '#END#'
     wordtoix = {}
     #wordtoix['#START#'] = 0
-    ix = 1
+    wordtoix["#START#"] = 1
+    wordtoix["#END#"] = 2
+    wordtoix["#UNK#"] = 3
+    ixtoword[1] = "#START#"
+    ixtoword[2] = "#END#"
+    ixtoword[3] = "#UNK#"
+
+    ix = 4
     for w in vocab:
         wordtoix[w] = ix
         ixtoword[ix] = w
         ix += 1
-    ixtoword[ix] = 'UNK'
-    wordtoix['#UNK#'] = ix
-    ixtoword[ix+1] = '#EOS#'
-    wordtoix['#EOS#'] = ix+1
+    #ixtoword[ix] = 'UNK'
+    #wordtoix['#UNK#'] = ix
+    #ixtoword[ix+1] = '#EOS#'
+    #wordtoix['#EOS#'] = ix+1
 
     return ixtoword, wordtoix
 
@@ -69,12 +80,13 @@ def buildSentenceIndex(postLists, commentLists, word2ix):
     for words in postLists:
         #indexs = [vocabSize] + [word2ix[w] for w in words if w in word2ix ]
         #torch translator
-        indexs =[word2ix[w] if w in word2ix else vocabSize-1 for w in reversed(words)] +[vocabSize]
+        indexs =[word2ix[w] if w in word2ix else 3 for w in reversed(words)]
         #print ', '.join(words)
         #print ' '.join(str(x) for x in indexs)
         postIndexs.append(indexs)
     for words in commentLists:
-        indexs =[word2ix[w] if w in word2ix else vocabSize-1 for w in words] +[vocabSize]
+        indexs =[word2ix[w] if w in word2ix else 3 for w in words]
+        indexs = [1] + indexs + [2]
         #print ' '.join(words)
         #print ' '.join(str(x) for x in indexs)
         commentIndexs.append(indexs)
@@ -86,16 +98,19 @@ def writeIndexFile(postIndexName, postIndexs, commentIndexName, commentIndexs):
     assert(len(postIndexs) == len(commentIndexs))
     fpostIndex = open(postIndexName, 'w')
     maxlen = 20
+    endsysbol = 2
     for indexs in postIndexs:
         if len(indexs) > maxlen:
-            endsysbol = indexs[len(indexs) - 1]
+            #print "excees max len"
+            #endsysbol = indexs[len(indexs) - 1]
             indexs = indexs[:maxlen-1] + [endsysbol]
+            #print indexs
         text = ' '.join(str(x) for x in indexs) + '\n'
         fpostIndex.write(text)
     fcommentIndex = open(commentIndexName, 'w')
     for indexs in commentIndexs:
         if len(indexs) > maxlen:
-            endsysbol = indexs[len(indexs) - 1]
+            #endsysbol = indexs[len(indexs) - 1]
             indexs = indexs[:maxlen-1] + [endsysbol]
             #indexs = indexs[:maxlen]
         text = ' '.join(str(x) for x in indexs) + '\n'
@@ -200,8 +215,8 @@ def cut2index(postFilename, commentFilename):
     postIndexs, commentIndexs = buildSentenceIndex(postLists, commentLists, word2ix)
     for indexs in postIndexs:
         print ' '.join(ix2word[x] for x in indexs)
-    for indexs in commentIndexs:
-        print ' '.join(ix2word[x] for x in indexs)
+    #for indexs in commentIndexs:
+    #    print ' '.join(ix2word[x] for x in indexs)
 
     postSegName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.POST_FILENAME) + cfg.SEG_POSTFIX
     commentSegName = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH, cfg.COMMENT_FILENAME) + cfg.SEG_POSTFIX
