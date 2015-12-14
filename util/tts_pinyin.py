@@ -28,6 +28,7 @@ def change2pinyin(from_file, to_file, punt_dict):
   print words
   #words = words.decode("utf-8")
   #这里转化为utf8之所以可转可不转是因为在获取拼音的代码内部有做转化utf8
+#jieba内部也有对字符串进行转换的代码，所以可以直接输入utf8. 但是实际上在处理的时候都是unicode
   han_pinyin = pinyin.get(words, ' ')
   res = []
   for char in han_pinyin:

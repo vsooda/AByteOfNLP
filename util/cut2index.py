@@ -8,6 +8,7 @@ from config import cfg
 import cPickle as pickle
 import _init_paths
 import os
+from charset_type import *
 
 
 def buildWordVocab(postLists, commentLists, wordCountThreshold = 2):
@@ -111,23 +112,48 @@ def writeSegFile(postSegName, postLists, commentSegName, commentLists):
         fcommentSeg.write(text)
 
 
+def segment_chinese_single(seglist):
+    res = []
+    for word in seglist:
+        word = word.decode("utf-8")
+        temp = []
+        if len(word) > 1:
+            is_all_chinese = True
+            for w in word:
+                print "www: ", w
+                if not is_chinese(w):
+                    is_all_chinese = False
+                    break
+            if is_all_chinese:
+                for w in word:
+                   temp = temp + [w]
+            else:
+                print word, " not all chinese"
+                temp = [word]
+        else:
+            temp = [word]
+        print word, " segword: ", temp, " ", temp[0]
+        res = res + temp
+    return res
+
+
 def segment_word(post_lines, comment_lines):
     postLists = []
     for line in post_lines:
         line = line.strip()
         seglist = jieba.cut(line)
-        segs = []
-        for word in seglist:
-            segs.append(word)
+        segs = segment_chinese_single(seglist)
+        #segs = []
+        #for w in seglist:
+        #    segs.append(w)
+        #print "line result: ", segs
         postLists.append(segs)
 
     commentLists = []
     for line in comment_lines:
         line = line.strip()
         seglist = jieba.cut(line)
-        segs = []
-        for word in seglist:
-            segs.append(word)
+        segs = segment_chinese_single(seglist)
         commentLists.append(segs)
 
     return postLists, commentLists
@@ -163,8 +189,8 @@ def cut2index(postFilename, commentFilename):
     commentLines = fcomment.readlines()
     #assert(len(postLines) == len(commentLines));
     #postLines = postLines.decode('utf-8')
-    #postLists, commentLists = segment_word(postLines, commentLines)
-    postLists, commentLists = segment_syllable(postLines, commentLines)
+    postLists, commentLists = segment_word(postLines, commentLines)
+    #postLists, commentLists = segment_syllable(postLines, commentLines)
 
     print len(postLists)
     print len(commentLists)
