@@ -100,11 +100,138 @@ def extract_conversation_batch(dirname):
                 fconversations.write(conversation)
                 fconversations.write("\n")
 
+def read_phoneset_map(filename):
+    index = 1
+    phonemap = {}
+    id2phone = {}
+    with open(filename) as f:
+        for line in f:
+            phone = line.decode('utf-8').strip();
+            id2phone[index] = phone
+            phonemap[phone] = index
+            index = index + 1
+    f.close()
+    return phonemap, id2phone
 
+def read_pinyin_transcript(filename):
+    pinyin_transcript_dict = {}
+    with open(filename) as f:
+        for line in f:
+            py, phones = line.decode('utf-8').strip().split('|')
+            pinyin_transcript_dict[py] = phones;
+    f.close()
+    return pinyin_transcript_dict
+
+def convert_word_pinyin(line):
+    han_pinyin = pinyin.get(line, ' ')
+    return han_pinyin
+
+def convert_word_transcript(line, lexicon_dict):
+    trans = ""
+    line = line.decode('utf-8').strip()
+    if len(line) == 0:
+        print "empty line"
+    else:
+        han_pinyin = convert_word_pinyin(line)
+        pinyins = han_pinyin.split(" ")
+        for py in pinyins:
+            trans = trans + lexicon_dict.get(py, ' ') + " "
+    return trans
+
+def convert_lines_word_transcripts(lines, lexicon_dict):
+    trans_lines = []
+    for line in lines:
+        trans_line = convert_word_transcript(line, lexicon_dict)
+        trans_lines.append(trans_line)
+    return trans_lines
+
+def convert_lines_word_transcripts_id(lines, lexicon_dict, phone_dict):
+    trans_lines = convert_lines_word_transcripts(lines, lexicon_dict)
+    lines_ids = convert_transciprt_lines_ids(trans_lines, phone_dict)
+    return lines_ids
+
+def convert_file_word_transcripts(filename, lexicon_dict):
+    f = open(filename, 'r')
+    lines = f.readlines()
+    for line in lines:
+        print line
+    print len(lines)
+    trans_lines = convert_lines_word_transcripts(lines, lexicon_dict)
+    f.close()
+    return trans_lines
+
+def convert_file_word_transcripts_id(filename, lexicon_dict, phone_dict):
+    trans_lines = convert_file_word_transcripts(filename, lexicon_dict)
+    lines_ids = convert_transciprt_lines_ids(trans_lines, phone_dict)
+    return lines_ids
+
+def convert_transcript_id(trans_line, phones_dict):
+    ids = []
+    #to split string with muitiple whitespace
+    #phones = trans_line.strip().split(' ') #wrong
+    #phones = re.split("\s+", trans_line.strip()) #ok
+    phones = trans_line.split()
+    for phone in phones:
+        index = phones_dict.get(phone, 0)
+        if index == 0:
+            print index, phone
+        ids.append(index)
+    return ids
+
+def convert_transciprt_lines_ids(trans_lines, phones_dict):
+    lines_ids = []
+    for line in trans_lines:
+        ids = convert_transcript_id(line, phones_dict)
+        lines_ids.append(ids)
+    return lines_ids
+
+def test_convert_file_transcript():
+    root_dir = cfg.ROOT_DIR
+    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
+    lexicon_dict = read_pinyin_transcript(lexicon_file)
+    word_name = os.path.join(root_dir, "data/tts/mini_word.txt")
+    print word_name
+    trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
+    for line in trans_lines:
+        print line
+
+def test_convert_file_transcript_id():
+    root_dir = cfg.ROOT_DIR
+    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
+    lexicon_dict = read_pinyin_transcript(lexicon_file)
+    word_name = os.path.join(root_dir, "data/tts/total.txt")
+    trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
+    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
+    phones_dict, id2phone = read_phoneset_map(phoneset_file)
+    lines_ids = convert_transciprt_lines_ids(trans_lines, phones_dict)
+    for line_ids in lines_ids:
+        print ' '.join(str(x) for x in line_ids)
+
+
+
+def test_lexicon_dict():
+    root_dir = cfg.ROOT_DIR
+    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
+    lexicon_dict = read_pinyin_transcript(lexicon_file)
+    for k, v in lexicon_dict.items():
+        print k, v
+
+def test_phoneset_dict():
+    root_dir = cfg.ROOT_DIR
+    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
+    phones_dict = read_phoneset_map(phoneset_file)
+    for k, v in phones_dict.items():
+        print k, v
+
+def test_extract_converstion_batch():
+    root_dir = cfg.ROOT_DIR
+    juben_dir = os.path.join(root_dir, 'data/tts/juben')
+    extract_conversation_batch(juben_dir)
 
 if __name__ == '__main__':
-    extract_conversation_batch("/Users/sooda/nlp/AByteOfNLP/data/tts/juben")
-   #gen_test()
-   # filter_test()
-   #test_dir("/Users/sooda/nlp/AByteOfNLP/data/tts/juben")
+    #gen_test()
+    #filter_test()
+    #test_dir("/Users/sooda/nlp/AByteOfNLP/data/tts/juben")
+    #test_convert_file_transcript()
+    test_convert_file_transcript_id()
 
