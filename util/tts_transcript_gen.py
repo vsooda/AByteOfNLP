@@ -115,12 +115,15 @@ def read_phoneset_map(filename):
 
 def read_pinyin_transcript(filename):
     pinyin_transcript_dict = {}
+    phone2pinyin = {}
     with open(filename) as f:
         for line in f:
             py, phones = line.decode('utf-8').strip().split('|')
             pinyin_transcript_dict[py] = phones;
+            phones = phones.replace(" ", "")
+            phone2pinyin[phones] = py
     f.close()
-    return pinyin_transcript_dict
+    return pinyin_transcript_dict, phone2pinyin
 
 def convert_word_pinyin(line):
     han_pinyin = pinyin.get(line, ' ')
@@ -153,8 +156,6 @@ def convert_lines_word_transcripts_id(lines, lexicon_dict, phone_dict):
 def convert_file_word_transcripts(filename, lexicon_dict):
     f = open(filename, 'r')
     lines = f.readlines()
-    for line in lines:
-        print line
     print len(lines)
     trans_lines = convert_lines_word_transcripts(lines, lexicon_dict)
     f.close()
@@ -188,7 +189,7 @@ def convert_transciprt_lines_ids(trans_lines, phones_dict):
 def test_convert_file_transcript():
     root_dir = cfg.ROOT_DIR
     lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
-    lexicon_dict = read_pinyin_transcript(lexicon_file)
+    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
     word_name = os.path.join(root_dir, "data/tts/mini_word.txt")
     print word_name
     trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
@@ -198,7 +199,7 @@ def test_convert_file_transcript():
 def test_convert_file_transcript_id():
     root_dir = cfg.ROOT_DIR
     lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
-    lexicon_dict = read_pinyin_transcript(lexicon_file)
+    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
     word_name = os.path.join(root_dir, "data/tts/total.txt")
     trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
     phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
@@ -207,12 +208,68 @@ def test_convert_file_transcript_id():
     for line_ids in lines_ids:
         print ' '.join(str(x) for x in line_ids)
 
+def test_convert_han_file_triphone():
+    root_dir = cfg.ROOT_DIR
+    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
+    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
+    word_name = os.path.join(root_dir, "data/tts/total.txt")
+    #word_name = os.path.join(root_dir, "data/tts/mini_word.txt")
+    trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
+    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
+    phones_dict, id2phone = read_phoneset_map(phoneset_file)
+    lines_ids = convert_transciprt_lines_ids(trans_lines, phones_dict)
+    lines = []
+    for line_ids in lines_ids:
+        lines.append(' '.join(str(x) for x in line_ids))
+    triphone_list_list = generate_lines_triphone(lines)
+    cover_status = {}
+    total_triphone = 0
+    for triphone_list in triphone_list_list:
+        for triphone in triphone_list:
+            total_triphone = total_triphone + 1
+            if triphone in cover_status:
+                cover_status[triphone] = cover_status[triphone] + 1
+            else:
+                cover_status[triphone] = 1
+
+    print total_triphone
+
+    cover_status = sorted(cover_status.iteritems(), key=lambda d:d[1], reverse=True)
+    index = 0
+    print "tirphone cover num: ", len(cover_status)
+    for key, value in cover_status:
+        triphone = triphoneid_to_phones(id2phone, key)
+        print phone2pinyin.get(triphone, triphone), value
+        index = index + 1
+        if index > 100:
+            break
+
+def triphoneid_to_phones(id2phone, triphoneid):
+    ids = triphoneid.split('-')
+    phones = ""
+    for phoneid in ids:
+        phone = id2phone.get((int(phoneid, 10)), '-')
+        phones = phones + phone
+    return phones
+
+def test_triphoneid_to_phones():
+    root_dir = cfg.ROOT_DIR
+    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
+    phones_dict, id2phone = read_phoneset_map(phoneset_file)
+    ids1 = "39-10-10"
+    phones1 = triphoneid_to_phones(id2phone, ids1)
+    print phones1
+    ids2 = '0-20-0'
+    phones2 = triphoneid_to_phones(id2phone, ids2)
+    print phones2
+
+
 
 
 def test_lexicon_dict():
     root_dir = cfg.ROOT_DIR
     lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
-    lexicon_dict = read_pinyin_transcript(lexicon_file)
+    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
     for k, v in lexicon_dict.items():
         print k, v
 
@@ -228,10 +285,81 @@ def test_extract_converstion_batch():
     juben_dir = os.path.join(root_dir, 'data/tts/juben')
     extract_conversation_batch(juben_dir)
 
+def compute_cover():
+    print 'a'
+
+
+
+#warning the first and the end with have 2-element  model string
+def test_string_format():
+    a = 10
+    b = 20
+    c = 30
+    coverstr = "%d-%d-%d" % (19, 20, 21)
+    print coverstr
+
+def generate_lines_triphone(lines):
+    triphone_list_list = []
+    for line in lines:
+        triphones_list = generate_line_triphone(line)
+        triphone_list_list.append(triphones_list)
+    return triphone_list_list
+
+#input a line of id
+#output a list of triphone
+def generate_line_triphone(line):
+    ids_list = line.split()
+    triphones = []
+    length = len(ids_list)
+    for index in range(0, length):
+        current_value = ids_list[index]
+        if index == 0 and index == length - 1:
+            pri_value = 0
+            next_value = 0
+        elif index == 0:
+            pri_value = 0
+            next_value = ids_list[index+1]
+        elif index == length - 1:
+            pri_value = ids_list[index-1]
+            next_value = 0
+        else:
+            pri_value = ids_list[index-1]
+            next_value = ids_list[index+1]
+        #cover_str = '%d-%d-%d' % (pri_value, current_value, next_value)
+        cover_str = '%s-%s-%s' % (pri_value, current_value, next_value)
+        triphones.append(cover_str)
+    return triphones
+
+def test_generate_line_triphone():
+    print 'test case 1 '
+    line1 = "10 20 30 50 60 70"
+    triphones1 = generate_line_triphone(line1)
+    for triphone in triphones1:
+        print triphone
+
+    print 'test case 2'
+    line2 = '10'
+    triphones2 = generate_line_triphone(line2)
+    for triphone in triphones2:
+        print triphone
+
+    print 'test case 3'
+    line3 = '10 20'
+    triphones3 = generate_line_triphone(line3)
+    for triphone in triphones3:
+        print triphone
+
+
+
+
 if __name__ == '__main__':
     #gen_test()
     #filter_test()
     #test_dir("/Users/sooda/nlp/AByteOfNLP/data/tts/juben")
     #test_convert_file_transcript()
-    test_convert_file_transcript_id()
+    #test_string_format()
+    #test_convert_file_transcript_id()
+    #test_generate_line_triphone()
+    test_convert_han_file_triphone()
+    #test_triphoneid_to_phones()
 
