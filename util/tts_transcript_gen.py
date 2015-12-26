@@ -200,13 +200,39 @@ def test_convert_file_transcript_id():
     root_dir = cfg.ROOT_DIR
     lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
     lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
-    word_name = os.path.join(root_dir, "data/tts/total.txt")
+    #word_name = os.path.join(root_dir, "data/tts/total.txt")
+    word_name = os.path.join(root_dir, "data/tts/mini_word.txt")
     trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
     phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
     phones_dict, id2phone = read_phoneset_map(phoneset_file)
     lines_ids = convert_transciprt_lines_ids(trans_lines, phones_dict)
-    for line_ids in lines_ids:
-        print ' '.join(str(x) for x in line_ids)
+    #for line_ids in lines_ids:
+    #    print ' '.join(str(x) for x in line_ids)
+    save_file = 'mini.id'
+    if save_file:
+        f = open(save_file, 'w')
+        for line_ids in lines_ids:
+            f.write(' '.join(str(x) for x in line_ids))
+            f.write('\n')
+
+
+def print_cover_status(cover_status, id2phone=None, phone2pinyin=None):
+    cover_status = sorted(cover_status.iteritems(), key=lambda d:d[1], reverse=True)
+    index = 0
+    print "tirphone cover num: ", len(cover_status)
+    for key, value in cover_status:
+        if id2phone:
+            triphone = triphoneid_to_phones(id2phone, key)
+            if phone2pinyin:
+                print phone2pinyin.get(triphone, triphone), value
+            else:
+                print triphone, value
+        else:
+            print key, value
+        index = index + 1
+        if index > 100:
+            break
+
 
 def test_convert_han_file_triphone():
     root_dir = cfg.ROOT_DIR
@@ -222,27 +248,11 @@ def test_convert_han_file_triphone():
     for line_ids in lines_ids:
         lines.append(' '.join(str(x) for x in line_ids))
     triphone_list_list = generate_lines_triphone(lines)
-    cover_status = {}
-    total_triphone = 0
-    for triphone_list in triphone_list_list:
-        for triphone in triphone_list:
-            total_triphone = total_triphone + 1
-            if triphone in cover_status:
-                cover_status[triphone] = cover_status[triphone] + 1
-            else:
-                cover_status[triphone] = 1
-
-    print total_triphone
+    cover_status = construct_triphone_count(triphone_list_list)
 
     cover_status = sorted(cover_status.iteritems(), key=lambda d:d[1], reverse=True)
-    index = 0
-    print "tirphone cover num: ", len(cover_status)
-    for key, value in cover_status:
-        triphone = triphoneid_to_phones(id2phone, key)
-        print phone2pinyin.get(triphone, triphone), value
-        index = index + 1
-        if index > 100:
-            break
+    print_cover_status(cover_status, id2phone, phone2pinyin)
+
 
 def triphoneid_to_phones(id2phone, triphoneid):
     ids = triphoneid.split('-')
@@ -262,6 +272,95 @@ def test_triphoneid_to_phones():
     ids2 = '0-20-0'
     phones2 = triphoneid_to_phones(id2phone, ids2)
     print phones2
+
+def construct_triphone_count(triphone_list_list):
+    cover_status = {}
+    total_triphone = 0
+    for triphone_list in triphone_list_list:
+        for triphone in triphone_list:
+            total_triphone = total_triphone + 1
+            if triphone in cover_status:
+                cover_status[triphone] = cover_status[triphone] + 1
+            else:
+                cover_status[triphone] = 1
+    return cover_status
+
+
+def get_triphone_listlist_idfile(filename):
+    f = open(filename, 'r')
+    lines = f.readlines()
+    f.close()
+    triphone_list_list = generate_lines_triphone(lines)
+    return triphone_list_list
+
+def compute_extend_cover_num(cover_status, triphone_list, doextend=False):
+    extend_num = 0
+    extend_cover_status = {}
+    for triphone in triphone_list:
+        if triphone in cover_status or triphone in extend_cover_status:
+            continue
+        else:
+            extend_num = extend_num + 1
+            extend_cover_status[triphone] = 1
+    if doextend == True:
+        for key, value in extend_cover_status.items():
+            cover_status[key] = value
+    return extend_num
+
+#need to give high frequency word with high weight
+def compute_extend_cover_score(cover_status, triphone_list, doextend=False):
+    score = 0
+    extend_cover_status = {}
+    enough_occurtime = 5
+    new_triphone_bonus = 10
+    for triphone in triphone_list:
+        orig_occur = 0
+        extend_occur = 0
+        if triphone in cover_status:
+            orig_occur = cover_status[triphone]
+        if triphone in extend_cover_status:
+            extend_occur = extend_cover_status[triphone]
+
+        if orig_occur + extend_occur > enough_occurtime:
+            continue
+        elif orig_occur == 0 and extend_occur == 0:
+            score = score + new_triphone_bonus
+            extend_cover_status[triphone] = 1
+        else:
+            extend_cover_status[triphone] = extend_occur + 1
+            score = score + (enough_occurtime - orig_occur - extend_occur)
+
+    if doextend == True:
+        for key, value in extend_cover_status.items():
+            cover_status[key] = value
+
+    return score
+
+
+def test_extend_triphone():
+    root_dir = cfg.ROOT_DIR
+    origin_id_filename = os.path.join(root_dir, 'data/tts/total.id')
+    #extend_id_filename = os.path.join(root_dir, 'data/tts/extend.id')
+    extend_id_filename = os.path.join(root_dir, 'data/tts/mini_extend.id')
+    orig_triphone_list_list = get_triphone_listlist_idfile(origin_id_filename)
+    cover_status = construct_triphone_count(orig_triphone_list_list)
+    print_cover_status(cover_status)
+    print len(cover_status)
+
+    extend_triphone_list_list = get_triphone_listlist_idfile(extend_id_filename)
+    #extend_cover_status = construct_triphone_count(extend_triphone_list_list)
+    #print_cover_status(extend_cover_status)
+    #print len(extend_cover_status)
+
+    total_num = 0
+    #need to shuffle the data and add 10 highest sentence every batch
+    for triphone_list in extend_triphone_list_list:
+        #num = compute_extend_cover_num(cover_status, triphone_list, True)
+        #total_num = total_num + num
+        score = compute_extend_cover_score(cover_status, triphone_list)
+        print score
+    print len(cover_status)
+
 
 
 
@@ -360,6 +459,7 @@ if __name__ == '__main__':
     #test_string_format()
     #test_convert_file_transcript_id()
     #test_generate_line_triphone()
-    test_convert_han_file_triphone()
+    #test_convert_han_file_triphone()
     #test_triphoneid_to_phones()
+    test_extend_triphone()
 
