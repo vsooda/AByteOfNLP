@@ -1,9 +1,7 @@
 #! /usr/bin/env python2.7
 #coding=utf-8
-#filename: tts_pinyin.py
+#filename: tts_transcript_gen.py
 import sys
-sys.path.append('../test')
-#import test
 import  _init_paths
 import jieba
 import time
@@ -15,6 +13,7 @@ from os.path import isfile, join
 #import pinyin
 import zh_pinyin as pinyin
 import re
+import random
 
 def strQ2B(ustring):
     """全角转半角"""
@@ -42,20 +41,6 @@ def strB2Q(ustring):
         rstring += unichr(inside_code)
     return rstring
 
-def filter_test():
-    #dialogPattern = re.compile(r'["“](.*?)["”]');
-    dialogPattern = re.compile(r'".*?"');
-    #dialogPattern = re.compile(r'\“.*?\”');
-    line = '“搞什么" "飞机啊”'
-    line = line.replace('“', '"').replace('”', '"')
-    line = line.decode('utf-8').strip()
-    print line
-    match = dialogPattern.match(line)
-    if match:
-        print match.group()
-    else:
-        print "none"
-
 def extract_conversation_text(text_file):
     ftext = open(text_file)
     lines = ftext.readlines()
@@ -78,15 +63,6 @@ def extract_conversation_text(text_file):
     return converstion_lines
 
 
-def test_dir(dirname):
-    for root, dirs, files in os.walk(dirname):
-        for name in files:
-            print os.path.join(root, name)
-
-def gen_test():
-    conversations = extract_conversation_text("/Users/sooda/nlp/AByteOfNLP/data/tts/juben/hzgg2.txt")
-    for conversation in conversations:
-        print conversation
 
 def extract_conversation_batch(dirname):
     fconversations = open("extract.txt", "w")
@@ -186,36 +162,6 @@ def convert_transciprt_lines_ids(trans_lines, phones_dict):
         lines_ids.append(ids)
     return lines_ids
 
-def test_convert_file_transcript():
-    root_dir = cfg.ROOT_DIR
-    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
-    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
-    word_name = os.path.join(root_dir, "data/tts/mini_word.txt")
-    print word_name
-    trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
-    for line in trans_lines:
-        print line
-
-def test_convert_file_transcript_id():
-    root_dir = cfg.ROOT_DIR
-    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
-    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
-    #word_name = os.path.join(root_dir, "data/tts/total.txt")
-    word_name = os.path.join(root_dir, "data/tts/mini_word.txt")
-    trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
-    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
-    phones_dict, id2phone = read_phoneset_map(phoneset_file)
-    lines_ids = convert_transciprt_lines_ids(trans_lines, phones_dict)
-    #for line_ids in lines_ids:
-    #    print ' '.join(str(x) for x in line_ids)
-    save_file = 'mini.id'
-    if save_file:
-        f = open(save_file, 'w')
-        for line_ids in lines_ids:
-            f.write(' '.join(str(x) for x in line_ids))
-            f.write('\n')
-
-
 def print_cover_status(cover_status, id2phone=None, phone2pinyin=None):
     cover_status = sorted(cover_status.iteritems(), key=lambda d:d[1], reverse=True)
     index = 0
@@ -234,26 +180,6 @@ def print_cover_status(cover_status, id2phone=None, phone2pinyin=None):
             break
 
 
-def test_convert_han_file_triphone():
-    root_dir = cfg.ROOT_DIR
-    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
-    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
-    word_name = os.path.join(root_dir, "data/tts/total.txt")
-    #word_name = os.path.join(root_dir, "data/tts/mini_word.txt")
-    trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
-    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
-    phones_dict, id2phone = read_phoneset_map(phoneset_file)
-    lines_ids = convert_transciprt_lines_ids(trans_lines, phones_dict)
-    lines = []
-    for line_ids in lines_ids:
-        lines.append(' '.join(str(x) for x in line_ids))
-    triphone_list_list = generate_lines_triphone(lines)
-    cover_status = construct_triphone_count(triphone_list_list)
-
-    cover_status = sorted(cover_status.iteritems(), key=lambda d:d[1], reverse=True)
-    print_cover_status(cover_status, id2phone, phone2pinyin)
-
-
 def triphoneid_to_phones(id2phone, triphoneid):
     ids = triphoneid.split('-')
     phones = ""
@@ -261,17 +187,6 @@ def triphoneid_to_phones(id2phone, triphoneid):
         phone = id2phone.get((int(phoneid, 10)), '-')
         phones = phones + phone
     return phones
-
-def test_triphoneid_to_phones():
-    root_dir = cfg.ROOT_DIR
-    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
-    phones_dict, id2phone = read_phoneset_map(phoneset_file)
-    ids1 = "39-10-10"
-    phones1 = triphoneid_to_phones(id2phone, ids1)
-    print phones1
-    ids2 = '0-20-0'
-    phones2 = triphoneid_to_phones(id2phone, ids2)
-    print phones2
 
 def construct_triphone_count(triphone_list_list):
     cover_status = {}
@@ -320,7 +235,6 @@ def compute_extend_cover_score(cover_status, triphone_list, doextend=False):
             orig_occur = cover_status[triphone]
         if triphone in extend_cover_status:
             extend_occur = extend_cover_status[triphone]
-
         if orig_occur + extend_occur > enough_occurtime:
             continue
         elif orig_occur == 0 and extend_occur == 0:
@@ -336,66 +250,74 @@ def compute_extend_cover_score(cover_status, triphone_list, doextend=False):
 
     return score
 
+def do_extend_cover(cover_status, triphone_list):
+    for triphone in triphone_list:
+        if triphone in cover_status:
+            cover_status[triphone] = cover_status[triphone] + 1
+        else:
+            cover_status[triphone] = 1
 
-def test_extend_triphone():
-    root_dir = cfg.ROOT_DIR
-    origin_id_filename = os.path.join(root_dir, 'data/tts/total.id')
-    #extend_id_filename = os.path.join(root_dir, 'data/tts/extend.id')
-    extend_id_filename = os.path.join(root_dir, 'data/tts/mini_extend.id')
-    orig_triphone_list_list = get_triphone_listlist_idfile(origin_id_filename)
-    cover_status = construct_triphone_count(orig_triphone_list_list)
-    print_cover_status(cover_status)
-    print len(cover_status)
 
-    extend_triphone_list_list = get_triphone_listlist_idfile(extend_id_filename)
-    #extend_cover_status = construct_triphone_count(extend_triphone_list_list)
-    #print_cover_status(extend_cover_status)
-    #print len(extend_cover_status)
-
-    total_num = 0
-    #need to shuffle the data and add 10 highest sentence every batch
-    for triphone_list in extend_triphone_list_list:
-        #num = compute_extend_cover_num(cover_status, triphone_list, True)
-        #total_num = total_num + num
+def batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, select_indicate, pick_batch_size):
+    assert len(triphone_list_list) == len(shuffle_ids)
+    assert len(shuffle_ids) == len(select_indicate)
+    if pick_batch_size > len(triphone_list_list):
+        print "batch size or data size is not suitble"
+    random.shuffle(shuffle_ids)
+    score_map = {}
+    for index in range(0, len(shuffle_ids)):
+        line_id = shuffle_ids[index]
+        if select_indicate[line_id] == 1:
+            score_map[line_id] = 0
+            continue
+        triphone_list = triphone_list_list[line_id]
         score = compute_extend_cover_score(cover_status, triphone_list)
-        print score
-    print len(cover_status)
+        score_map[line_id] = score
+    score_map = sorted(score_map.iteritems(), key=lambda d:d[1], reverse=True)
+    # do extend
+    current_extend_num = 0
+    scan_line_num = 0
+    while current_extend_num  < pick_batch_size and scan_line_num < len(shuffle_ids):
+        #print "extending: ",current_extend_num, " " , scan_line_num
+        line_id = score_map[scan_line_num][0]
+        print line_id, score_map[scan_line_num][1]
+        if select_indicate[line_id] == 0:
+            #do extend
+            #print "extended: ", line_id
+            triphone_list = triphone_list_list[line_id]
+            do_extend_cover(cover_status, triphone_list)
+            select_indicate[line_id] = 1
+            current_extend_num = current_extend_num + 1
+        scan_line_num =  scan_line_num + 1
+    return select_indicate
 
+def sentences_extend(cover_status, triphone_list_list, pick_batch_size, batch_time):
+    assert len(triphone_list_list) > pick_batch_size
+    candicate_num = len(triphone_list_list)
+    shuffle_ids = range(candicate_num)
+    select_indicate = [0] * candicate_num
+    #select_indicate = []
+    #for index in xrange(candicate_num):
+    #    select_indicate.append(0)
+    for batch in range(batch_time):
+        random.shuffle(shuffle_ids)
+        print "current batch: %d %d" %(batch, len(cover_status))
+        if sum(select_indicate) >= candicate_num:
+            print "no enough candicate, quit"
+        select_indicate = batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, select_indicate, pick_batch_size)
+    return select_indicate
 
+def confirm_select_sentence_extend(cover_status, triphone_list_list, select_indicate):
+    assert len(triphone_list_list) == len(select_indicate)
+    for index in xrange(len(select_indicate)):
+        if select_indicate[index] == 1:
+            #print "extending index: ", index
+            triphone_list = triphone_list_list[index]
+            do_extend_cover(cover_status, triphone_list)
 
-
-
-def test_lexicon_dict():
-    root_dir = cfg.ROOT_DIR
-    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
-    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
-    for k, v in lexicon_dict.items():
-        print k, v
-
-def test_phoneset_dict():
-    root_dir = cfg.ROOT_DIR
-    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
-    phones_dict = read_phoneset_map(phoneset_file)
-    for k, v in phones_dict.items():
-        print k, v
-
-def test_extract_converstion_batch():
-    root_dir = cfg.ROOT_DIR
-    juben_dir = os.path.join(root_dir, 'data/tts/juben')
-    extract_conversation_batch(juben_dir)
-
-def compute_cover():
-    print 'a'
-
-
-
-#warning the first and the end with have 2-element  model string
-def test_string_format():
-    a = 10
-    b = 20
-    c = 30
-    coverstr = "%d-%d-%d" % (19, 20, 21)
-    print coverstr
+def do_extend_cover_ll(cover_status, triphone_list_list):
+    for triphone_list in triphone_list_list:
+        do_extend_cover(cover_status, triphone_list)
 
 def generate_lines_triphone(lines):
     triphone_list_list = []
@@ -428,38 +350,4 @@ def generate_line_triphone(line):
         cover_str = '%s-%s-%s' % (pri_value, current_value, next_value)
         triphones.append(cover_str)
     return triphones
-
-def test_generate_line_triphone():
-    print 'test case 1 '
-    line1 = "10 20 30 50 60 70"
-    triphones1 = generate_line_triphone(line1)
-    for triphone in triphones1:
-        print triphone
-
-    print 'test case 2'
-    line2 = '10'
-    triphones2 = generate_line_triphone(line2)
-    for triphone in triphones2:
-        print triphone
-
-    print 'test case 3'
-    line3 = '10 20'
-    triphones3 = generate_line_triphone(line3)
-    for triphone in triphones3:
-        print triphone
-
-
-
-
-if __name__ == '__main__':
-    #gen_test()
-    #filter_test()
-    #test_dir("/Users/sooda/nlp/AByteOfNLP/data/tts/juben")
-    #test_convert_file_transcript()
-    #test_string_format()
-    #test_convert_file_transcript_id()
-    #test_generate_line_triphone()
-    #test_convert_han_file_triphone()
-    #test_triphoneid_to_phones()
-    test_extend_triphone()
 

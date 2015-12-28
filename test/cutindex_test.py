@@ -1,6 +1,6 @@
 #! /usr/bin/env python2.7
 #coding=utf-8
-#filename: cut2index.py
+#filename: cut2index_test.py
 import sys
 import _init_paths
 import os
