@@ -159,9 +159,47 @@ def test_sentences_extend():
     do_extend_cover_ll(confirm_cover_status2, confirm_triphone_list_list2)
     print len(confirm_cover_status2)
 
+    #save the select top sentence id
+    select_id_filename = os.path.join(root_dir, 'data/tts/select_id')
+    fselectid = open(select_id_filename, 'w')
+    fselectid.write(' '.join(str(x) for x in select_sentences_id))
 
+# use the orig chinese data and the extend sentence id for extending
+# compute the cover_status if its the same as the choose result..
+def test_confirm_select_sentence():
+    root_dir = cfg.ROOT_DIR
+    lexicon_file = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
+    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_file)
+    phoneset_file = os.path.join(root_dir, 'data/tts/phoneset.txt')
+    phones_dict, id2phone = read_phoneset_map(phoneset_file)
 
+    word_name = os.path.join(root_dir, "data/tts/total.txt")
+    #word_name = os.path.join(root_dir, "data/tts/mini_word.txt")
+    orig_trans_lines = convert_file_word_transcripts(word_name, lexicon_dict)
+    orig_lines_ids = convert_transciprt_lines_ids(orig_trans_lines, phones_dict)
+    orig_triphone_list_list = generate_lines_triphone(orig_lines_ids)
+    cover_status = construct_triphone_count(orig_triphone_list_list)
+    print_cover_status(cover_status)
+    orig_cover_status = cover_status
 
+    #get line from sentence id file
+    select_id_filename = os.path.join(root_dir, 'data/tts/select_id')
+    fselect_id = open(select_id_filename, 'r')
+    select_id_str = fselect_id.readline()
+    fselect_id.close()
+    select_ids = select_id_str.split()
+    select_ids = [int(x) for x in select_ids]
+    print select_ids
+    extend_filename = os.path.join(root_dir, 'data/tts/mini_word.txt')
+    fextend = open(extend_filename, 'r')
+    extend_lines = fextend.readlines()
+    fextend.close()
+    extend_lines = [x.decode('utf-8').strip() for x in extend_lines]
+    select_lines_sentences = [extend_lines[x] for x in select_ids]
+    extend_lines_ids = convert_lines_word_transcripts_id(select_lines_sentences, lexicon_dict, phones_dict)
+    extend_triphone_list_list = generate_lines_triphone(extend_lines_ids)
+    do_extend_cover_ll(cover_status, extend_triphone_list_list)
+    print len(cover_status)
 
 
 def test_lexicon_dict():
@@ -230,5 +268,6 @@ if __name__ == '__main__':
     #test_triphoneid_to_phones()
     #test_extend_triphone()
     #test_shuffle()
-    test_sentences_extend()
+    #test_sentences_extend()
+    test_confirm_select_sentence()
 

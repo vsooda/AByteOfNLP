@@ -329,7 +329,12 @@ def generate_lines_triphone(lines):
 #input a line of id
 #output a list of triphone
 def generate_line_triphone(line):
-    ids_list = line.split()
+    if type(line) == str:
+        ids_list = line.split()
+    elif type(line) == list:
+        ids_list = line
+    else:
+        raise TypeError('unexpected type error')
     triphones = []
     length = len(ids_list)
     for index in range(0, length):
