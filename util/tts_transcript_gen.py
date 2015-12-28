@@ -373,20 +373,41 @@ def generate_line_triphone(line):
         triphones.append(cover_str)
     return triphones
 
+
+def find_all(a_str, sub):
+    start = 0
+    while True:
+        start = a_str.find(sub, start)
+        if start == -1:
+            return
+        yield start
+        start += len(sub)
+
 def extract_file_sentences(filename):
     fin = open(filename, 'r')
     lines = fin.readlines()
     fin.close()
     lines = [line.decode('utf-8').strip() for line in lines if len(line) > 0]
+    juhao_sentences = []
     split_str = []
     for line in lines:
         line = strQ2B(line)
         print "spliting ", len(line)
         if len(line) > 10:
-            split_strings = line.strip().split('。')
-            for ss in split_strings:
-                print ss
+            delimite = '。'.decode('utf-8')
+            find_results = list(find_all(line, delimite))
+            start = 0
+            substrings = []
+            for index in find_results:
+                substrings.append(line[start:index+1])
+                start = index + 1
+            if start < len(line):
+                substrings.append(line[start:len(line)])
+            for subs in substrings:
+                juhao_sentences = juhao_sentences + substrings
 
+    for sentence in juhao_sentences:
+        print sentence
 
 
 

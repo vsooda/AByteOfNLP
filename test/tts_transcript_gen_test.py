@@ -306,6 +306,53 @@ def test_file_sentences():
     filename = os.path.join(root_dir, "data/tts/pfdsj.txt")
     extract_file_sentences(filename)
 
+def splitStringFull(sh, st):
+    ls = sh.split(st)
+    print ls
+    lo = []
+    start = 0
+    for l in ls:
+        if not l:
+            continue
+        k = st.find(l)
+        llen = len(l)
+        if k > start:
+            tmp = st[start:k]
+            lo.append(tmp)
+            lo.append(l)
+            start = k + llen
+        else:
+            lo.append(l)
+            start = llen
+    return lo
+
+
+def test_splitStringFull():
+    import re
+    st="%%(c+dd+e+f-1523)%%7"
+    sh=re.compile('[\+\-//\*\<\>\%\(\)]')
+    li = splitStringFull(sh, st)
+    print li
+
+def test_find():
+    #strings = 'adgaeaaeadf'
+    strings = '你好。搞什么飞架阿。呵呵。'
+    strings = strings.decode('utf-8').strip()
+    #index = strings.find('e')
+    index = strings.find('。')
+    print index
+
+    find_result = find_all(strings, '。'.decode('utf-8'))
+    indexs = list(find_result) # transfer generator to list
+    start = 0
+    substring = []
+    for index in indexs:
+        substring.append(strings[start:index+1])
+        start = index + 1
+    if start < len(strings):
+        substring.append(strings[start:len(strings)])
+    for subs in substring:
+        print subs
 
 if __name__ == '__main__':
     #gen_test()
@@ -327,3 +374,5 @@ if __name__ == '__main__':
     #test_total_procedure()
     #test_confirm_total_procedure()
     test_file_sentences()
+    #test_splitStringFull()
+    #test_find()
