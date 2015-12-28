@@ -281,9 +281,10 @@ def test_total_procedure():
     phoneset_filename = os.path.join(root_dir, 'data/tts/phoneset.txt')
     orig_filename = os.path.join(root_dir, "data/tts/total.txt")
     #extend_filename = os.path.join(root_dir, 'data/tts/mini_word.txt')
-    extend_filename = os.path.join(root_dir, 'data/tts/mini_extract.txt')
+    #extend_filename = os.path.join(root_dir, 'data/tts/mini_extract.txt')
+    extend_filename = os.path.join(root_dir, 'data/tts/extract.txt')
     save_filename = os.path.join(root_dir, 'data/tts/save.txt')
-    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 10, 20)
+    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 20, 30)
 
 def test_confirm_total_procedure():
     root_dir = cfg.ROOT_DIR
@@ -293,13 +294,24 @@ def test_confirm_total_procedure():
     extend_save_filename = os.path.join(root_dir, 'data/tts/save.txt')
     confirm_extend_dataset(orig_filename, extend_save_filename, lexicon_filename, phoneset_filename)
 
+def test_get_average_length():
+    root_dir = cfg.ROOT_DIR
+    filename = os.path.join(root_dir, "data/tts/total.txt")
+    average_length = get_average_length(filename)
+    print average_length
 
+
+def test_file_sentences():
+    root_dir = cfg.ROOT_DIR
+    filename = os.path.join(root_dir, "data/tts/pfdsj.txt")
+    extract_file_sentences(filename)
 
 
 if __name__ == '__main__':
     #gen_test()
     #filter_test()
     #test_dir("/Users/sooda/nlp/AByteOfNLP/data/tts/juben")
+    #test_get_average_length()
     #test_convert_transcript_id()
     #test_extract_converstion_batch()
     #test_convert_file_transcript()
@@ -312,6 +324,6 @@ if __name__ == '__main__':
     #test_shuffle()
     #test_sentences_extend()
     #test_confirm_select_sentence()
-    test_total_procedure()
+    #test_total_procedure()
     #test_confirm_total_procedure()
-
+    test_file_sentences()

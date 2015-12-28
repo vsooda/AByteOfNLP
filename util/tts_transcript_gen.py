@@ -138,6 +138,21 @@ def convert_file_word_transcripts(filename, lexicon_dict):
     f.close()
     return trans_lines
 
+def get_average_length(filename):
+    f = open(filename, 'r')
+    lines = f.readlines()
+    f.close()
+    lines = [line.decode('utf-8').strip() for line in lines]
+    total_length = 0
+    for line in lines:
+        total_length = total_length + len(line)
+    if len(lines) > 0:
+        return total_length / len(lines)
+    else:
+        return 0
+
+
+
 def convert_file_word_transcripts_id(filename, lexicon_dict, phone_dict):
     trans_lines = convert_file_word_transcripts(filename, lexicon_dict)
     lines_ids = convert_transciprt_lines_ids(trans_lines, phone_dict)
@@ -358,6 +373,23 @@ def generate_line_triphone(line):
         triphones.append(cover_str)
     return triphones
 
+def extract_file_sentences(filename):
+    fin = open(filename, 'r')
+    lines = fin.readlines()
+    fin.close()
+    lines = [line.decode('utf-8').strip() for line in lines if len(line) > 0]
+    split_str = []
+    for line in lines:
+        line = strQ2B(line)
+        print "spliting ", len(line)
+        if len(line) > 10:
+            split_strings = line.strip().split('。')
+            for ss in split_strings:
+                print ss
+
+
+
+
 def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, pick_batch_size = 10, batch_time = 20):
     lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_filename)
     phones_dict, id2phone = read_phoneset_map(phoneset_filename)
@@ -377,7 +409,7 @@ def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filena
     extend_lines_ids = convert_lines_word_transcripts_id(extend_lines, lexicon_dict, phones_dict)
     extend_triphone_list_list = generate_lines_triphone(extend_lines_ids)
 
-    select_indicate = sentences_extend(cover_status, extend_triphone_list_list, 10, 20)
+    select_indicate = sentences_extend(cover_status, extend_triphone_list_list, pick_batch_size, batch_time)
     print len(cover_status)
     select_sentences_id = [x for x in range(len(select_indicate)) if select_indicate[x] == 1]
     select_sentences = [extend_lines[index].decode('utf-8').strip() for index in select_sentences_id]
@@ -403,5 +435,4 @@ def confirm_extend_dataset(orig_filename, extend_save_filename, lexicon_filename
     extend_triphone_list_list = generate_lines_triphone(extend_lines_ids)
     do_extend_cover_ll(cover_status, extend_triphone_list_list)
     print len(cover_status)
-
 
