@@ -56,8 +56,9 @@ def extract_conversation_text(text_file):
         match = dialogPattern.match(line)
         if match:
             match_str = match.group()
-            if len(match_str) > 5:
-                match_str = match_str.replace('"', '')
+            match_str = match_str.replace('"', '').replace('。', '.').replace('？', '?').replace('，', ',').replace('！', '!')
+            #print match_str, len(match_str)
+            if len(match_str) > 10 and len(match_str) < 30:
                 converstion_lines.append(match_str)
     ftext.close()
     return converstion_lines
@@ -248,6 +249,9 @@ def compute_extend_cover_score(cover_status, triphone_list, doextend=False):
         for key, value in extend_cover_status.items():
             cover_status[key] = value
 
+    if len(triphone_list) > 0:
+        score = score * 1.0 / len(triphone_list)
+
     return score
 
 def do_extend_cover(cover_status, triphone_list):
@@ -329,12 +333,10 @@ def generate_lines_triphone(lines):
 #input a line of id
 #output a list of triphone
 def generate_line_triphone(line):
-    if type(line) == str:
-        ids_list = line.split()
-    elif type(line) == list:
+    if type(line) == list:
         ids_list = line
     else:
-        raise TypeError('unexpected type error')
+        ids_list = line.split()
     triphones = []
     length = len(ids_list)
     for index in range(0, length):
@@ -355,4 +357,51 @@ def generate_line_triphone(line):
         cover_str = '%s-%s-%s' % (pri_value, current_value, next_value)
         triphones.append(cover_str)
     return triphones
+
+def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, pick_batch_size = 10, batch_time = 20):
+    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_filename)
+    phones_dict, id2phone = read_phoneset_map(phoneset_filename)
+
+    orig_trans_lines = convert_file_word_transcripts(orig_filename, lexicon_dict)
+    orig_lines_ids = convert_transciprt_lines_ids(orig_trans_lines, phones_dict)
+    orig_triphone_list_list = generate_lines_triphone(orig_lines_ids)
+    cover_status = construct_triphone_count(orig_triphone_list_list)
+    print_cover_status(cover_status)
+    print len(cover_status)
+    orig_cover_status = cover_status
+
+    fextend = open(extend_filename, 'r')
+    extend_lines = fextend.readlines()
+    fextend.close()
+    extend_lines = [x.decode('utf-8').strip() for x in extend_lines]
+    extend_lines_ids = convert_lines_word_transcripts_id(extend_lines, lexicon_dict, phones_dict)
+    extend_triphone_list_list = generate_lines_triphone(extend_lines_ids)
+
+    select_indicate = sentences_extend(cover_status, extend_triphone_list_list, 10, 20)
+    print len(cover_status)
+    select_sentences_id = [x for x in range(len(select_indicate)) if select_indicate[x] == 1]
+    select_sentences = [extend_lines[index].decode('utf-8').strip() for index in select_sentences_id]
+    fout = open(save_filename, 'w')
+    for sentence in select_sentences:
+        fout.write(sentence)
+        fout.write('\n')
+    fout.close()
+
+def confirm_extend_dataset(orig_filename, extend_save_filename, lexicon_filename, phoneset_filename):
+    lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_filename)
+    phones_dict, id2phone = read_phoneset_map(phoneset_filename)
+
+    orig_trans_lines = convert_file_word_transcripts(orig_filename, lexicon_dict)
+    orig_lines_ids = convert_transciprt_lines_ids(orig_trans_lines, phones_dict)
+    orig_triphone_list_list = generate_lines_triphone(orig_lines_ids)
+    cover_status = construct_triphone_count(orig_triphone_list_list)
+    print_cover_status(cover_status)
+    print len(cover_status)
+
+    extend_trans_lines = convert_file_word_transcripts(extend_save_filename, lexicon_dict)
+    extend_lines_ids = convert_transciprt_lines_ids(extend_trans_lines, phones_dict)
+    extend_triphone_list_list = generate_lines_triphone(extend_lines_ids)
+    do_extend_cover_ll(cover_status, extend_triphone_list_list)
+    print len(cover_status)
+
 
