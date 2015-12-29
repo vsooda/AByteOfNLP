@@ -292,7 +292,7 @@ def test_total_procedure():
     #extend_filename = os.path.join(root_dir, 'data/tts/extract.txt')
     extend_filename = os.path.join(root_dir, 'data/tts/sentences.txt')
     save_filename = os.path.join(root_dir, 'data/tts/save.txt')
-    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 20, 60)
+    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 20, 10)
 
 def test_confirm_total_procedure():
     root_dir = cfg.ROOT_DIR
@@ -409,9 +409,9 @@ if __name__ == '__main__':
     #test_sentences_extend()
     #test_confirm_select_sentence()
     #test_filter_quotation()
-    #test_total_procedure()
+    test_total_procedure()
     #test_confirm_total_procedure()
     #test_file_sentences()
-    test_file_sentences_batch()
+    #test_file_sentences_batch()
     #test_splitStringFull()
     #test_find()

@@ -296,7 +296,7 @@ def do_extend_cover(cover_status, triphone_list):
             cover_status[triphone] = 1
 
 
-def batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, select_indicate, pick_batch_size):
+def batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, select_indicate, pick_batch_size, select_id_sequence):
     assert len(triphone_list_list) == len(shuffle_ids)
     assert len(shuffle_ids) == len(select_indicate)
     if pick_batch_size > len(triphone_list_list):
@@ -315,6 +315,7 @@ def batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, sel
     # do extend
     current_extend_num = 0
     scan_line_num = 0
+    id_sequence = []
     while current_extend_num  < pick_batch_size and scan_line_num < len(shuffle_ids):
         #print "extending: ",current_extend_num, " " , scan_line_num
         line_id = score_map[scan_line_num][0]
@@ -326,10 +327,16 @@ def batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, sel
             do_extend_cover(cover_status, triphone_list)
             select_indicate[line_id] = 1
             current_extend_num = current_extend_num + 1
+            id_sequence.append(line_id)
         scan_line_num =  scan_line_num + 1
+    # + 和 append 的区别
+    #select_id_sequence = select_id_sequence + id_sequence #使用+， 在函数外，值被清空
+    for index in id_sequence: #使用append达到预期
+        select_id_sequence.append(index)
+    print select_id_sequence
     return select_indicate
 
-def sentences_extend(cover_status, triphone_list_list, pick_batch_size, batch_time):
+def sentences_extend(cover_status, triphone_list_list, pick_batch_size, batch_time, select_id_sequence):
     assert len(triphone_list_list) > pick_batch_size
     candicate_num = len(triphone_list_list)
     shuffle_ids = range(candicate_num)
@@ -342,7 +349,7 @@ def sentences_extend(cover_status, triphone_list_list, pick_batch_size, batch_ti
         print "current batch: %d %d" %(batch, len(cover_status))
         if sum(select_indicate) >= candicate_num:
             print "no enough candicate, quit"
-        select_indicate = batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, select_indicate, pick_batch_size)
+        select_indicate = batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, select_indicate, pick_batch_size, select_id_sequence)
     return select_indicate
 
 def confirm_select_sentence_extend(cover_status, triphone_list_list, select_indicate):
@@ -476,9 +483,11 @@ def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filena
     extend_lines_ids = convert_lines_word_transcripts_id(extend_lines, lexicon_dict, phones_dict)
     extend_triphone_list_list = generate_lines_triphone(extend_lines_ids)
 
-    select_indicate = sentences_extend(cover_status, extend_triphone_list_list, pick_batch_size, batch_time)
+    select_id_sequence = []
+    select_indicate = sentences_extend(cover_status, extend_triphone_list_list, pick_batch_size, batch_time, select_id_sequence)
     print len(cover_status)
     print_cover_status(cover_status)
+    print select_id_sequence
     select_sentences_id = [x for x in range(len(select_indicate)) if select_indicate[x] == 1]
     select_sentences = [extend_lines[index].decode('utf-8').strip() for index in select_sentences_id]
     #select_sentences = [filter_quotation(line) for line in select_sentences]
