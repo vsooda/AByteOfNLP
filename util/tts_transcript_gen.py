@@ -63,6 +63,11 @@ def extract_conversation_text(text_file):
     ftext.close()
     return converstion_lines
 
+def filter_quotation(string):
+    if string.startswith('“') and string.endswith('”'):
+        string = string[1:-1]
+    return string
+
 
 
 def extract_conversation_batch(dirname):
@@ -78,7 +83,7 @@ def extract_conversation_batch(dirname):
                 fconversations.write("\n")
 
 def read_phoneset_map(filename):
-    index = 1
+    index = 0
     phonemap = {}
     id2phone = {}
     with open(filename) as f:
@@ -115,7 +120,9 @@ def convert_word_transcript(line, lexicon_dict):
         han_pinyin = convert_word_pinyin(line)
         pinyins = han_pinyin.split(" ")
         for py in pinyins:
-            trans = trans + lexicon_dict.get(py, ' ') + " "
+            trans = trans + lexicon_dict.get(py, '_') + " "
+    trans = trans.replace('_ _ _', '_')
+    trans = trans.replace('_ _', '_')
     return trans
 
 def convert_lines_word_transcripts(lines, lexicon_dict):
@@ -166,8 +173,8 @@ def convert_transcript_id(trans_line, phones_dict):
     phones = trans_line.split()
     for phone in phones:
         index = phones_dict.get(phone, 0)
-        if index == 0:
-            print index, phone
+        #if index == 0:
+        #    print index, phone
         ids.append(index)
     return ids
 
@@ -194,13 +201,25 @@ def print_cover_status(cover_status, id2phone=None, phone2pinyin=None):
         index = index + 1
         if index > 100:
             break
+    total_num = len(cover_status)
+    no_one_index = len(cover_status)
+    index = 0
+    for key, value in cover_status:
+        if value == 1:
+            no_one_index = index
+            break
+        index = index + 1
+    one_nums = total_num - no_one_index
+    print one_nums , ' / ', total_num
+
+
 
 
 def triphoneid_to_phones(id2phone, triphoneid):
     ids = triphoneid.split('-')
     phones = ""
     for phoneid in ids:
-        phone = id2phone.get((int(phoneid, 10)), '-')
+        phone = id2phone.get((int(phoneid, 10)), '_')
         phones = phones + phone
     return phones
 
@@ -422,7 +441,20 @@ def write_lines_file(filename, lines):
     fout.close()
 
 
-
+def filter_double_quotation(lines):
+    dialogPattern = re.compile(r'".*?"');
+    filter_lines = []
+    for line in lines:
+        line = line.decode('utf-8').strip().replace('“', '"').replace('”', '"')
+        line = line.replace(' ', '')
+        match = dialogPattern.match(line)
+        if match:
+            match_str = match.group()
+            if len(match_str) > 10 and len(match_str) < 30:
+                filter_lines.append(match_str[1:-1])
+        else:
+            filter_lines.append(line)
+    return filter_lines
 
 
 def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, pick_batch_size = 10, batch_time = 20):
@@ -446,13 +478,17 @@ def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filena
 
     select_indicate = sentences_extend(cover_status, extend_triphone_list_list, pick_batch_size, batch_time)
     print len(cover_status)
+    print_cover_status(cover_status)
     select_sentences_id = [x for x in range(len(select_indicate)) if select_indicate[x] == 1]
     select_sentences = [extend_lines[index].decode('utf-8').strip() for index in select_sentences_id]
-    fout = open(save_filename, 'w')
-    for sentence in select_sentences:
-        fout.write(sentence)
-        fout.write('\n')
-    fout.close()
+    #select_sentences = [filter_quotation(line) for line in select_sentences]
+
+    write_lines_file(save_filename, select_sentences)
+    #fout = open(save_filename, 'w')
+    #for sentence in select_sentences:
+    #    fout.write(sentence)
+    #    fout.write('\n')
+    #fout.close()
 
 def confirm_extend_dataset(orig_filename, extend_save_filename, lexicon_filename, phoneset_filename):
     lexicon_dict, phone2pinyin = read_pinyin_transcript(lexicon_filename)

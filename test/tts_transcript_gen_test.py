@@ -63,6 +63,13 @@ def test_convert_transcript_id():
     print transcript
     line_id = convert_transcript_id(transcript, phones_dict)
     print line_id
+    line1 = '爹……让他走!!!不要伤他!爹……'
+    transcript1 = convert_word_transcript(line1, lexicon_dict)
+    print transcript1
+    line_id1 = convert_transcript_id(transcript1, phones_dict)
+    print line_id1
+    triphone_list = generate_line_triphone(line_id1)
+    print triphone_list
 
 
 def test_convert_file_transcript_id():
@@ -282,9 +289,10 @@ def test_total_procedure():
     orig_filename = os.path.join(root_dir, "data/tts/total.txt")
     #extend_filename = os.path.join(root_dir, 'data/tts/mini_word.txt')
     #extend_filename = os.path.join(root_dir, 'data/tts/mini_extract.txt')
-    extend_filename = os.path.join(root_dir, 'data/tts/extract.txt')
+    #extend_filename = os.path.join(root_dir, 'data/tts/extract.txt')
+    extend_filename = os.path.join(root_dir, 'data/tts/sentences.txt')
     save_filename = os.path.join(root_dir, 'data/tts/save.txt')
-    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 20, 30)
+    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 20, 60)
 
 def test_confirm_total_procedure():
     root_dir = cfg.ROOT_DIR
@@ -307,6 +315,22 @@ def test_file_sentences():
     sentences = extract_file_sentences(filename)
     save_name = os.path.join(root_dir, 'data/tts/sentences.txt')
     write_lines_file(save_name, sentences)
+
+def test_file_sentences_batch():
+    root_dir = cfg.ROOT_DIR
+    filename = os.path.join(root_dir, "data/tts/pfdsj.txt")
+    total_sentences = []
+    dirname = os.path.join(root_dir, 'data/tts/minzhu/')
+    for root, dirs, files in os.walk(dirname):
+        for name in files:
+            filename = os.path.join(root, name)
+            sentences = extract_file_sentences(filename)
+            total_sentences = total_sentences + sentences
+    total_sentences = filter_double_quotation(total_sentences)
+
+    save_name = os.path.join(root_dir, 'data/tts/sentences.txt')
+    write_lines_file(save_name, total_sentences)
+
 
 def splitStringFull(sh, st):
     ls = sh.split(st)
@@ -356,6 +380,17 @@ def test_find():
     for subs in substring:
         print subs
 
+def test_filter_quotation():
+    test_string1 = "搞什么飞机”".decode('utf-8')
+    result1 = filter_quotation(test_string1)
+    print test_string1
+    print result1
+    test_string2 = "“搞什么飞机”".decode('utf-8')
+    result2 = filter_quotation(test_string2)
+    print test_string2
+    print result2
+
+
 if __name__ == '__main__':
     #gen_test()
     #filter_test()
@@ -373,8 +408,10 @@ if __name__ == '__main__':
     #test_shuffle()
     #test_sentences_extend()
     #test_confirm_select_sentence()
+    #test_filter_quotation()
     #test_total_procedure()
     #test_confirm_total_procedure()
-    test_file_sentences()
+    #test_file_sentences()
+    test_file_sentences_batch()
     #test_splitStringFull()
     #test_find()
