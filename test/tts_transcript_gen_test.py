@@ -304,7 +304,9 @@ def test_get_average_length():
 def test_file_sentences():
     root_dir = cfg.ROOT_DIR
     filename = os.path.join(root_dir, "data/tts/pfdsj.txt")
-    extract_file_sentences(filename)
+    sentences = extract_file_sentences(filename)
+    save_name = os.path.join(root_dir, 'data/tts/sentences.txt')
+    write_lines_file(save_name, sentences)
 
 def splitStringFull(sh, st):
     ls = sh.split(st)

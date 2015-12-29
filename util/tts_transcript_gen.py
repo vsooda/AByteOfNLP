@@ -383,18 +383,11 @@ def find_all(a_str, sub):
         yield start
         start += len(sub)
 
-def extract_file_sentences(filename):
-    fin = open(filename, 'r')
-    lines = fin.readlines()
-    fin.close()
-    lines = [line.decode('utf-8').strip() for line in lines if len(line) > 0]
-    juhao_sentences = []
-    split_str = []
+def split_with_dilimite(lines, delimite):
+    sentences = []
     for line in lines:
-        line = strQ2B(line)
-        print "spliting ", len(line)
+        #print "spliting ", len(line)
         if len(line) > 10:
-            delimite = '。'.decode('utf-8')
             find_results = list(find_all(line, delimite))
             start = 0
             substrings = []
@@ -403,11 +396,32 @@ def extract_file_sentences(filename):
                 start = index + 1
             if start < len(line):
                 substrings.append(line[start:len(line)])
-            for subs in substrings:
-                juhao_sentences = juhao_sentences + substrings
+            sentences = sentences + substrings
+    return sentences
 
-    for sentence in juhao_sentences:
-        print sentence
+
+def extract_file_sentences(filename):
+    fin = open(filename, 'r')
+    lines = fin.readlines()
+    fin.close()
+    lines = [line.decode('utf-8').strip() for line in lines if len(line) > 0]
+    lines = [strQ2B(line) for line in lines]
+    period_delimite = '。'.decode('utf-8')
+    exclamation_delimite = '！'.decode('utf-8')
+    interrogation_delimite = '？'.decode('utf-8')
+    sentences = split_with_dilimite(lines, period_delimite)
+    sentences = split_with_dilimite(sentences, exclamation_delimite)
+    sentences = split_with_dilimite(sentences, interrogation_delimite)
+    return sentences
+
+def write_lines_file(filename, lines):
+    fout = open(filename, 'w')
+    for line in lines:
+        fout.write(line)
+        fout.write('\n')
+    fout.close()
+
+
 
 
 
