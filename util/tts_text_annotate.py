@@ -18,7 +18,12 @@ def alignment(text, split_pinyins):
         filter(None, pinyin_list)
         length = len(pinyin_list)
         end_index = start_index + length
-        temp = text[start_index:end_index] + " | " + pinyins
+        if text[start_index:end_index].strip() == pinyins.strip():
+            temp = pinyins
+        else:
+            temp = text[start_index:end_index] + " | " + pinyins
+        #print text[start_index:end_index], pinyins, "--> ", temp
+
         if not result_string:
             result_string = temp
         else:
