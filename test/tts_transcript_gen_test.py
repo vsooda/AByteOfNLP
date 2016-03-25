@@ -292,7 +292,7 @@ def test_total_procedure():
     #extend_filename = os.path.join(root_dir, 'data/tts/extract.txt')
     extend_filename = os.path.join(root_dir, 'data/tts/sentences.txt')
     save_filename = os.path.join(root_dir, 'data/tts/save.txt')
-    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 20, 10)
+    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 200, 10)
 
 def test_confirm_total_procedure():
     root_dir = cfg.ROOT_DIR
@@ -313,6 +313,7 @@ def test_file_sentences():
     root_dir = cfg.ROOT_DIR
     filename = os.path.join(root_dir, "data/tts/pfdsj.txt")
     sentences = extract_file_sentences(filename)
+    sentences = filter_punct(sentences)
     save_name = os.path.join(root_dir, 'data/tts/sentences.txt')
     write_lines_file(save_name, sentences)
 
@@ -324,9 +325,11 @@ def test_file_sentences_batch():
     for root, dirs, files in os.walk(dirname):
         for name in files:
             filename = os.path.join(root, name)
+            print filename
             sentences = extract_file_sentences(filename)
             total_sentences = total_sentences + sentences
-    total_sentences = filter_double_quotation(total_sentences)
+    #total_sentences = filter_double_quotation(total_sentences)
+    total_sentences = filter_punct(total_sentences)
 
     save_name = os.path.join(root_dir, 'data/tts/sentences.txt')
     write_lines_file(save_name, total_sentences)
@@ -389,6 +392,7 @@ def test_filter_quotation():
     result2 = filter_quotation(test_string2)
     print test_string2
     print result2
+
 
 
 if __name__ == '__main__':

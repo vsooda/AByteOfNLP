@@ -261,9 +261,22 @@ def compute_extend_cover_num(cover_status, triphone_list, doextend=False):
 def compute_extend_cover_score(cover_status, triphone_list, doextend=False):
     score = 0
     extend_cover_status = {}
-    enough_occurtime = 5
+    enough_occurtime = 10
     new_triphone_bonus = 10
+    count_punct = 0
+
     for triphone in triphone_list:
+        phones = triphone.split("-")
+        current_phone = phones[1]
+        if current_phone == '0':
+            count_punct = count_punct + 1
+        escape_current_triphone = False
+        for phone in phones:
+            if phone == '0':
+                escape_current_triphone = True
+        if escape_current_triphone :
+            #print "escaping: ", triphone
+            continue;
         orig_occur = 0
         extend_occur = 0
         if triphone in cover_status:
@@ -285,6 +298,11 @@ def compute_extend_cover_score(cover_status, triphone_list, doextend=False):
 
     if len(triphone_list) > 0:
         score = score * 1.0 / len(triphone_list)
+    if count_punct > 5:
+        score = score * 0.5;
+    elif count_punct > 3:
+        #print "punct count: ", count_punct
+        score = score * 0.8;
 
     return score
 
@@ -435,9 +453,13 @@ def extract_file_sentences(filename):
     period_delimite = '。'.decode('utf-8')
     exclamation_delimite = '！'.decode('utf-8')
     interrogation_delimite = '？'.decode('utf-8')
+    en_exc_delimite = "!".decode('utf-8')
+    en_inter_delimite = "?".decode('utf-8')
     sentences = split_with_dilimite(lines, period_delimite)
     sentences = split_with_dilimite(sentences, exclamation_delimite)
     sentences = split_with_dilimite(sentences, interrogation_delimite)
+    sentences = split_with_dilimite(sentences, en_exc_delimite)
+    sentences = split_with_dilimite(sentences, en_inter_delimite)
     return sentences
 
 def write_lines_file(filename, lines):
@@ -452,7 +474,7 @@ def filter_double_quotation(lines):
     dialogPattern = re.compile(r'".*?"');
     filter_lines = []
     for line in lines:
-        line = line.decode('utf-8').strip().replace('“', '"').replace('”', '"')
+        line = line.decode('utf-8').strip().replace('“', '"').replace('”', '"').replace("‘", "").replace("’", "")
         line = line.replace(' ', '')
         match = dialogPattern.match(line)
         if match:
@@ -462,6 +484,22 @@ def filter_double_quotation(lines):
         else:
             filter_lines.append(line)
     return filter_lines
+
+def filter_punct(lines):
+    filter_lines = []
+    for line in lines:
+        line = line.decode('utf-8').strip().replace('“', '').replace('”', '').replace("‘", "").replace("’", "").replace('"', '').replace('……', ',').replace(' ', '')
+        no_chinese_count = 0
+        for w in line:
+            unicode_value = ord(w)
+            if unicode_value < 19968 or unicode_value > 40869:
+                no_chinese_count = no_chinese_count + 1
+        #if no_chinese_count > 7:
+        #    print line, no_chinese_count
+        if len(line) > 20 and len(line) < 40 and no_chinese_count < 7:
+            filter_lines.append(line)
+    return filter_lines
+
 
 
 def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, pick_batch_size = 10, batch_time = 20):
