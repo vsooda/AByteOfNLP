@@ -10,6 +10,10 @@ from os.path import isfile, join
 import numpy as np
 from scipy.cluster.vq import whiten
 
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation
+from keras.layers.recurrent import LSTM
+
 
 def get_file_list(path):
     path = os.path.abspath(path)
@@ -43,11 +47,13 @@ def preprocess(dirname):
     normTotal, ranges, minVals = autoNorm(total_cmp_mat)
     print ranges
     print minVals
+    np.savetxt("minval.txt", minVals, fmt="%1.8f")
+    np.savetxt("ranges.txt", ranges, fmt="%1.8f")
 
     for textdeep_name in files:
         cmp_name = textdeep_name.replace("textdeep", "cmp_nb").replace("TextDeep", "cmp")
-        save_cmp_name = cmp_name.replace("cmp_nb", "preprocess")
-        save_textdeep_name = textdeep_name.replace("textdeep", "preprocess")
+        save_cmp_name = cmp_name.replace("cmp_nb", "preprocess/cmp_nb")
+        save_textdeep_name = textdeep_name.replace("textdeep", "preprocess/textdeep")
         index = index + 1
         if index > max_file_nums and max_file_nums > 0:
             break
@@ -65,8 +71,7 @@ def preprocess(dirname):
                 text_mat = text_mat[0:cmp_num]
             cmp_mat = norm_with_ranges(cmp_mat, minVals, ranges)
 
-            np.savetxt("minval.txt", minVals, fmt="%1.8f")
-            np.savetxt("ranges.txt", ranges, fmt="%1.8f")
+            print np.shape(text_mat), np.shape(cmp_mat)
 
 
             np.savetxt(save_cmp_name, cmp_mat, fmt='%1.8f')
@@ -89,6 +94,46 @@ def file2matrix(filename):
         index += 1
     return returnMat
 
+def get_train_data(dirname):
+    files = get_file_list(dirname)
+
+    maxlen = 30
+    X_list = []
+    y_list = []
+    step = 3
+    for textdeep_name in files:
+        cmp_name = textdeep_name.replace("textdeep", "cmp_nb").replace("TextDeep", "cmp")
+        if isfile(cmp_name):
+            ftext = open(textdeep_name, 'r')
+            fcmp = open(cmp_name, 'r')
+            text_mat = file2matrix(textdeep_name)
+            cmp_mat = file2matrix(cmp_name)
+            print cmp_mat[1,2] # 第一个属性对应于文件是行，第二个属性对应于列
+            rows_num = np.shape(text_mat)[0]
+            for i in range(0, rows_num - maxlen, step):
+                X_list.append(text_mat[i:i+maxlen])
+                y_list.append(cmp_mat[i:i+maxlen])
+
+    X = np.array(X_list)
+    y = np.array(y_list)
+
+    print np.shape(X)
+    print X[0, 1, 2]
+
+    return X, y
+
+def train(dirname):
+    X_train, y_train = get_train_data(dirname)
+    in_neurons = 222;
+    hidden_neurons = 512;
+    out_neurons = 42;
+    model = Sequential()
+    model.add(LSTM(output_dim=hidden_neurons, input_dim=in_neurons, return_sequences=True))
+    model.add(Dense(output_dim=out_neurons, input_dim=hidden_neurons))
+    model.add(Activation("linear"))
+    model.compile(loss="mean_squared_error", optimizer="rmsprop")
+    model.fit(X_train, y_train, batch_size=450, nb_epoch=10, validation_split=0.05)
+
 
 def autoNorm(dataSet):
     minVals = dataSet.min(0)
@@ -108,4 +153,5 @@ def norm_with_ranges(dataSet, minVals, ranges):
     return normDataSet
 
 if __name__ == '__main__':
-    preprocess('/Users/sooda/data/deep_tts_data/textdeep/')
+    #preprocess('/Users/sooda/data/deep_tts_data/textdeep/')
+    train('/Users/sooda/data/deep_tts_data/preprocess/textdeep/')
