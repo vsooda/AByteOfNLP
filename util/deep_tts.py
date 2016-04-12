@@ -132,7 +132,15 @@ def train(dirname):
     model.add(Dense(output_dim=out_neurons, input_dim=hidden_neurons))
     model.add(Activation("linear"))
     model.compile(loss="mean_squared_error", optimizer="rmsprop")
+    #json_string = model.to_json()
+    #open('model_architecture.json', 'w').write(json_string)
     model.fit(X_train, y_train, batch_size=450, nb_epoch=10, validation_split=0.05)
+
+    model.save_weights('model_weights.h5')
+
+    #model reading
+    #model = model_from_json(open('my_model_architecture.json').read())
+    #model.load_weights('my_model_weights.h5')
 
 
 def autoNorm(dataSet):
