@@ -119,11 +119,8 @@ def transcript_pinyin(from_file, to_file):
     ffrom.close()
     fto.close()
 
-if __name__ == '__main__':
-    #use glob can list files very easy. but need to cut the path
-    #print glob.glob("/home/sooda/data/tts_data/text/*.txt")
+def change_han_pinyin_test():
     root_dir = cfg.ROOT_DIR
-
     save_path = os.path.join(root_dir, 'data/tts')
     tts_text = os.path.join(root_dir, "data/tts/text/utf")
     punt_dict = {}
@@ -133,13 +130,24 @@ if __name__ == '__main__':
             k, v = line.decode('utf-8').strip().split(' ')
             punt_dict[k] = v.strip()
     #print ord(k)
-
     from_file = os.path.join(root_dir, 'data/text.txt')
     to_file = os.path.join(root_dir, 'data/text_res1.txt')
     transcript_pinyin(from_file, to_file)
     change_han_pinyin_dir(tts_text, save_path, punt_dict)
-    #test_punt_dict(punt_path)
+
+def dump_pinyin_dict_test():
     pinyinDict = os.path.join(root_dir, 'data/pinyin.txt')
     dump_pinyin_dict(pinyinDict)
-    dict_path = os.path.join(root_dir, 'data/pinyin.txt')
-    change_dict_format(dict_path)
+
+def change_pinyin_dict_test():
+    pinyinDict = os.path.join(root_dir, 'data/pinyin.txt')
+    change_dict_format(pinyinDict)
+
+if __name__ == '__main__':
+    #use glob can list files very easy. but need to cut the path
+    #print glob.glob("/home/sooda/data/tts_data/text/*.txt")
+    root_dir = cfg.ROOT_DIR
+    #test_punt_dict(punt_path)
+    #change_han_pinyin_test()
+    change_pinyin_dict_test()
+
