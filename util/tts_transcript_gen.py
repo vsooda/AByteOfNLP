@@ -525,7 +525,7 @@ def filter_punct(lines):
                 no_chinese_count = no_chinese_count + 1
         #if no_chinese_count > 7:
         #    print line, no_chinese_count
-        if len(line) > 25 and len(line) < 50 and no_chinese_count < 7:
+        if len(line) > 32 and len(line) < 50 and no_chinese_count < 7:
             filter_lines.append(line)
     return filter_lines
 
