@@ -185,7 +185,19 @@ def convert_transciprt_lines_ids(trans_lines, phones_dict):
         lines_ids.append(ids)
     return lines_ids
 
+def covert_status2phone_counter(cover_status):
+    phones_counter = {}
+    for key, value in cover_status.iteritems():
+        phones = key.split("-")
+        current_phone = phones[1]
+        if current_phone in phones_counter:
+            phones_counter[current_phone] = phones_counter[current_phone] + value
+        else:
+            phones_counter[current_phone] = value
+    return phones_counter
+
 def print_cover_status(cover_status, id2phone=None, phone2pinyin=None):
+    phones_counter = covert_status2phone_counter(cover_status)
     cover_status = sorted(cover_status.iteritems(), key=lambda d:d[1], reverse=True)
     index = 0
     print "tirphone cover num: ", len(cover_status)
@@ -211,6 +223,12 @@ def print_cover_status(cover_status, id2phone=None, phone2pinyin=None):
         index = index + 1
     one_nums = total_num - no_one_index
     print one_nums , ' / ', total_num
+
+    counter = sorted(phones_counter.iteritems(), key=lambda d:d[1], reverse=True)
+    for key, value in counter:
+        if id2phone:
+            key = id2phone.get((int(key, 10)), '_')
+        print key, value
 
 
 
@@ -258,16 +276,25 @@ def compute_extend_cover_num(cover_status, triphone_list, doextend=False):
     return extend_num
 
 #need to give high frequency word with high weight
-def compute_extend_cover_score(cover_status, triphone_list, doextend=False):
+def compute_extend_cover_score(cover_status, triphone_list, doextend=False, phones_counter=None):
     score = 0
     extend_cover_status = {}
     enough_occurtime = 10
     new_triphone_bonus = 10
     count_punct = 0
+    enough_phone_occur = 20
 
     for triphone in triphone_list:
         phones = triphone.split("-")
         current_phone = phones[1]
+        if phones_counter:
+            if current_phone in phones_counter:
+                if phones_counter[current_phone] < enough_phone_occur:
+                    score = score + enough_phone_occur - phones_counter[current_phone]
+                    #print "add score for Seldom phone: ", current_phone, enough_phone_occur-phones_counter[current_phone]
+            else:
+                score = score + enough_phone_occur
+                #print "add score for Seldom phone: ", current_phone, enough_phone_occur
         if current_phone == '0':
             count_punct = count_punct + 1
         escape_current_triphone = False
@@ -321,13 +348,14 @@ def batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, sel
         print "batch size or data size is not suitble"
     random.shuffle(shuffle_ids)
     score_map = {}
+    phones_counter = covert_status2phone_counter(cover_status)
     for index in range(0, len(shuffle_ids)):
         line_id = shuffle_ids[index]
         if select_indicate[line_id] == 1:
             score_map[line_id] = 0
             continue
         triphone_list = triphone_list_list[line_id]
-        score = compute_extend_cover_score(cover_status, triphone_list)
+        score = compute_extend_cover_score(cover_status, triphone_list, False, phones_counter)
         score_map[line_id] = score
     score_map = sorted(score_map.iteritems(), key=lambda d:d[1], reverse=True)
     # do extend
@@ -354,7 +382,7 @@ def batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, sel
     print select_id_sequence
     return select_indicate
 
-def sentences_extend(cover_status, triphone_list_list, pick_batch_size, batch_time, select_id_sequence):
+def sentences_extend(cover_status, triphone_list_list, pick_batch_size, batch_time, select_id_sequence, id2phone=None):
     assert len(triphone_list_list) > pick_batch_size
     candicate_num = len(triphone_list_list)
     shuffle_ids = range(candicate_num)
@@ -368,6 +396,7 @@ def sentences_extend(cover_status, triphone_list_list, pick_batch_size, batch_ti
         if sum(select_indicate) >= candicate_num:
             print "no enough candicate, quit"
         select_indicate = batch_extend_cover_status(cover_status, triphone_list_list, shuffle_ids, select_indicate, pick_batch_size, select_id_sequence)
+        print_cover_status(cover_status, id2phone)
     return select_indicate
 
 def confirm_select_sentence_extend(cover_status, triphone_list_list, select_indicate):
@@ -496,7 +525,7 @@ def filter_punct(lines):
                 no_chinese_count = no_chinese_count + 1
         #if no_chinese_count > 7:
         #    print line, no_chinese_count
-        if len(line) > 20 and len(line) < 40 and no_chinese_count < 7:
+        if len(line) > 32 and len(line) < 50 and no_chinese_count < 7:
             filter_lines.append(line)
     return filter_lines
 
@@ -510,7 +539,7 @@ def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filena
     orig_lines_ids = convert_transciprt_lines_ids(orig_trans_lines, phones_dict)
     orig_triphone_list_list = generate_lines_triphone(orig_lines_ids)
     cover_status = construct_triphone_count(orig_triphone_list_list)
-    print_cover_status(cover_status)
+    print_cover_status(cover_status, id2phone)
     print len(cover_status)
     orig_cover_status = cover_status
 
@@ -522,7 +551,7 @@ def extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filena
     extend_triphone_list_list = generate_lines_triphone(extend_lines_ids)
 
     select_id_sequence = []
-    select_indicate = sentences_extend(cover_status, extend_triphone_list_list, pick_batch_size, batch_time, select_id_sequence)
+    select_indicate = sentences_extend(cover_status, extend_triphone_list_list, pick_batch_size, batch_time, select_id_sequence, id2phone)
     print len(cover_status)
     print_cover_status(cover_status)
     print select_id_sequence

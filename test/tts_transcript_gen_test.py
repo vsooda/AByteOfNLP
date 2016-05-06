@@ -284,15 +284,19 @@ def test_shuffle():
 
 def test_total_procedure():
     root_dir = cfg.ROOT_DIR
-    lexicon_filename = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
-    phoneset_filename = os.path.join(root_dir, 'data/tts/phoneset.txt')
-    orig_filename = os.path.join(root_dir, "data/tts/total.txt")
+    #lexicon_filename = os.path.join(root_dir, 'data/tts/zh_lexicon.dict')
+    #phoneset_filename = os.path.join(root_dir, 'data/tts/phoneset.txt')
+    lexicon_filename = os.path.join(root_dir, 'data/tts/zh_lexicon176.dict')
+    phoneset_filename = os.path.join(root_dir, 'data/tts/phoneset176.txt')
+    #orig_filename = os.path.join(root_dir, "data/tts/total.txt")
+    #orig_filename = os.path.join(root_dir, "data/tts/cslt.txt")
+    orig_filename = os.path.join(root_dir, "data/tts/4k.txt")
     #extend_filename = os.path.join(root_dir, 'data/tts/mini_word.txt')
     #extend_filename = os.path.join(root_dir, 'data/tts/mini_extract.txt')
     #extend_filename = os.path.join(root_dir, 'data/tts/extract.txt')
     extend_filename = os.path.join(root_dir, 'data/tts/sentences.txt')
     save_filename = os.path.join(root_dir, 'data/tts/save.txt')
-    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 200, 10)
+    extend_dataset(orig_filename, extend_filename, save_filename, lexicon_filename, phoneset_filename, 30, 110)
 
 def test_confirm_total_procedure():
     root_dir = cfg.ROOT_DIR

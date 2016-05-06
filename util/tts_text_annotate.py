@@ -83,5 +83,5 @@ def get_file_list(path):
     return files
 
 if __name__ == "__main__":
-    read_dir("../data/tts/annotate/text")
+    read_dir("/Users/sooda/speech/speech_data/text")
     #get_file_list("../data/tts/annotate/text")
