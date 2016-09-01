@@ -644,3 +644,20 @@ def confirm_extend_dataset(orig_filename, extend_save_filename, lexicon_filename
     do_extend_cover_ll(cover_status, extend_triphone_list_list)
     print len(cover_status)
 
+
+def filter_choose_text(lines):
+    filter_lines = []
+    for line in lines:
+        line = line.decode('utf-8').strip().replace('“', '').replace('”', '').replace("‘", "").replace("’", "").replace(
+            '"', '').replace('……', ',').replace(' ', '').replace('~', '.').replace('！', '!').replace('..','.')
+        if len(line) > 20 and len(line) < 50:
+            filter_lines.append(line)
+    return filter_lines
+
+def filter_choose_file(input_file, output_file):
+    f = open(input_file, 'r')
+    lines = f.readlines()
+    filter_lines = filter_choose_text(lines)
+    write_lines_file(output_file, filter_lines)
+
+

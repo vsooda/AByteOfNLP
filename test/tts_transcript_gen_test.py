@@ -426,5 +426,6 @@ if __name__ == '__main__':
     #test_splitStringFull()
     #test_find()
     #test_file_pinyin()
-    extract_zero_consonant("/home/sooda/data/tts/post2")
+    #extract_zero_consonant("/home/sooda/data/tts/post2")
     #extract_zero_consonant("/home/sooda/data/tts/text")
+    filter_choose_file("/home/sooda/data/tts/qingjing4.txt", "/home/sooda/data/tts/qingjing4_filter.txt")
