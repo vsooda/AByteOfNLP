@@ -145,6 +145,67 @@ def convert_file_word_transcripts(filename, lexicon_dict):
     f.close()
     return trans_lines
 
+def convert_lines_pinyin(lines):
+    pinyin_lines = []
+    for line in lines:
+        line = line.decode('utf-8').strip()
+        if len(line) == 0:
+            print "empty line"
+        else:
+            han_pinyin = pinyin.get(line, ' ')
+        #print line, han_pinyin
+
+
+def convert_file_pinyin(filename):
+    f = open(filename, 'r')
+    lines = f.readlines()
+    f.close()
+    pinyin_lines = convert_lines_pinyin(lines)
+    return pinyin_lines
+
+def is_zero_consonant(string):
+    if string.startswith("a") or string.startswith("e") or string.startswith("o"):
+        return True
+    else:
+        return False
+
+# a o e
+def is_modal(string):
+    substring = string[:-1]
+    if substring == 'a' or substring == 'o' or substring == 'e' :
+        #print string, " is modal"
+        return True
+    else:
+        return False
+
+def extract_zero_consonant(filename):
+    f = open(filename, 'r')
+    lines = f.readlines()
+    f.close()
+    lines = filter_punct(lines)
+    for line in lines:
+        line = line.decode('utf-8').strip()
+        han_pinyin = pinyin.get(line, ' ')
+        if is_zero_consonant(han_pinyin):
+            print line
+        #pinyins = han_pinyin.split(" ")
+        #count = 0
+        #flag = 1
+        #for py_str in pinyins:
+        #    #if is_zero_consonant(py_str):
+        #    if flag == 1:
+        #        flag = 0
+        #        if is_modal(py_str):
+        #            count = count + 1
+        #    if py_str == ',':
+        #        #print "biao dian........"
+        #        flag = 1
+
+        #if count > 0:
+        #    print line
+
+
+
 def get_average_length(filename):
     f = open(filename, 'r')
     lines = f.readlines()

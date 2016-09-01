@@ -397,6 +397,8 @@ def test_filter_quotation():
     print test_string2
     print result2
 
+def test_file_pinyin():
+    convert_file_pinyin("/home/sooda/data/tts/text")
 
 
 if __name__ == '__main__':
@@ -417,9 +419,12 @@ if __name__ == '__main__':
     #test_sentences_extend()
     #test_confirm_select_sentence()
     #test_filter_quotation()
-    test_total_procedure()
+    #test_total_procedure()
     #test_confirm_total_procedure()
     #test_file_sentences()
     #test_file_sentences_batch()
     #test_splitStringFull()
     #test_find()
+    #test_file_pinyin()
+    extract_zero_consonant("/home/sooda/data/tts/post2")
+    #extract_zero_consonant("/home/sooda/data/tts/text")
