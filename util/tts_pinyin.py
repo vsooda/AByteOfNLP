@@ -204,6 +204,38 @@ def mix_pinyin_word_dict_test():
     save_name = "mix_pinyin_word.txt"
     mix_pinyin_word_dict(pinyin_path, pinyin_word_path, save_name)
 
+#generator pinyin to phone dict
+#input: han to phone dict
+#output: pinyin to phone dict which need to check manually
+def cslt_zh_txt_gen():
+    from_file = "/home/sooda/speech/phoneSet/cslt/cslt_dict.txt"
+    ffrom = open(from_file, 'r')
+    lines = ffrom.readlines()
+    for line in lines:
+        segs = line.decode("utf-8").strip().split(" ")
+        word = segs[0]
+        han_pinyin = pinyin.get(word, ' ')
+        #print word, han_pinyin, segs[1], segs[2]
+        print han_pinyin, segs[1], segs[2]
+
+def cslt_zh_full_text():
+    from_file = "/home/sooda/speech/phoneSet/cslt/cslt_lexicon.txt"
+    ffrom = open(from_file, 'r')
+    lines = ffrom.readlines()
+    for line in lines:
+        segs = line.decode("utf-8").strip().split(" ")
+        pinyin = segs[0]
+        pinyin = pinyin[0:-1]
+        phone = segs[1] + segs[2]
+        phone = phone[0:-1]
+        #if pinyin != phone:
+        #    print pinyin, phone
+        for i in range(1,6):
+            temp = pinyin + str(i)
+            temp_phone = phone + str(i)
+            print temp, temp_phone
+
+
 
 if __name__ == '__main__':
     #use glob can list files very easy. but need to cut the path
@@ -211,5 +243,7 @@ if __name__ == '__main__':
     #test_punt_dict(punt_path)
     #change_han_pinyin_test()
     #change_pinyin_dict_test()
-    mix_pinyin_word_dict_test()
+    #mix_pinyin_word_dict_test()
+    #cslt_zh_txt_gen()
+    cslt_zh_full_text()
 
