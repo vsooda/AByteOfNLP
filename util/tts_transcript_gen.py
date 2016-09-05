@@ -205,14 +205,14 @@ def print_cover_status(cover_status, id2phone=None, phone2pinyin=None):
         if id2phone:
             triphone = triphoneid_to_phones(id2phone, key)
             if phone2pinyin:
-                print phone2pinyin.get(triphone, triphone), value
+                print phone2pinyin.get(triphone, triphone), "\t" , value
             else:
-                print triphone, value
+                print triphone, "\t" , value
         else:
             print key, value
         index = index + 1
-        if index > 100:
-            break
+        #if index > 100:
+        #    break
     total_num = len(cover_status)
     no_one_index = len(cover_status)
     index = 0
@@ -228,7 +228,7 @@ def print_cover_status(cover_status, id2phone=None, phone2pinyin=None):
     for key, value in counter:
         if id2phone:
             key = id2phone.get((int(key, 10)), '_')
-        print key, value
+        print key, "\t", value
 
 
 
@@ -238,7 +238,10 @@ def triphoneid_to_phones(id2phone, triphoneid):
     phones = ""
     for phoneid in ids:
         phone = id2phone.get((int(phoneid, 10)), '_')
-        phones = phones + phone
+        if phones == "":
+            phones = phone
+        else:
+            phones = phones + "\t" +  phone
     return phones
 
 def construct_triphone_count(triphone_list_list):

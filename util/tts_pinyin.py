@@ -91,6 +91,7 @@ def change_dict_format(dict_path):
         for line in f:
             k, v = line.strip().split('\t')
             pinyin_dict[k] = v.lower().split(" ")[0]
+            #print k, v
             print unichr(int(k, 16)), v
 
 
@@ -210,6 +211,6 @@ if __name__ == '__main__':
     #print glob.glob("/home/sooda/data/tts_data/text/*.txt")
     #test_punt_dict(punt_path)
     #change_han_pinyin_test()
-    #change_pinyin_dict_test()
-    mix_pinyin_word_dict_test()
+    change_pinyin_dict_test()
+    #mix_pinyin_word_dict_test()
 

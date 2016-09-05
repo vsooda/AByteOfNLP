@@ -5,6 +5,7 @@ import sys
 import time
 import os
 import glob
+import matplotlib.pyplot as plt
 from os import listdir
 from os.path import isfile, join
 import numpy as np
@@ -160,6 +161,51 @@ def norm_with_ranges(dataSet, minVals, ranges):
     normDataSet = normDataSet / np.tile(ranges, (m,1))   #element wise divide
     return normDataSet
 
+def f0_statistics(dir_name, class_stat=False):
+    np.set_printoptions(precision=2)
+    files = get_file_list(dir_name)
+    total_f0_mat = np.empty(shape=(0))
+    for f0_name in files:
+        if isfile(f0_name):
+            fcmp = open(f0_name, 'r')
+            f0_mat = file2matrix(f0_name)
+            voice_indexs = (f0_mat > 1)
+            f0_mat = f0_mat[voice_indexs]
+            if class_stat:
+                total_f0_mat = np.concatenate((total_f0_mat, f0_mat))
+            else:
+                max_vals = f0_mat.max()
+                min_vals = f0_mat.min()
+                mean_vals = f0_mat.mean()
+                var_vals = f0_mat.std()
+                print f0_name, " %.2f  %.2f  %.2f %.2f"  %(max_vals, min_vals, mean_vals, var_vals)
+    if class_stat:
+        max_val = f0_mat.max()
+        min_val = f0_mat.min()
+        mean_val = f0_mat.mean()
+        var_val = f0_mat.std()
+        #hist, bins = np.histogram(total_f0_mat, bins=50, density=True)
+        #width = 0.7 * (bins[1] - bins[0])
+        #center = (bins[:-1] + bins[1:]) / 2
+        #plt.bar(center, hist, align='center', width=width)
+        #print np.sum(hist)
+        #plt.show()
+        plt.hist(total_f0_mat.astype(int), 50, normed=0, facecolor='green')
+        plt.xlabel('f0')
+        plt.ylabel('Frequency')
+        plt.title('xin150 distribute')
+        plot_str = "$\mu=%.2f,\ \sigma=%.2f$" % (mean_val, var_val)
+        plot_maxmin = "max=%.2f, min=%.2f" %(max_val, min_val)
+        print plot_str
+        #plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
+        plt.text(120, 100, plot_str)
+        plt.text(120, 2000, plot_maxmin)
+        plt.show()
+        print "class_stat %2.f %2.f %.2f %.2f" %(max_val, min_val, mean_val, var_val)
+
+
 if __name__ == '__main__':
     #preprocess('/Users/sooda/data/deep_tts_data/textdeep/')
-    train('/Users/sooda/data/deep_tts_data/preprocess/textdeep/')
+    #train('/Users/sooda/data/deep_tts_data/preprocess/textdeep/')
+    #f0_statistics("/Users/sooda/data/tts/labixx500/hts/data/lf0_nb/", True)
+    f0_statistics("/Users/sooda/data/tts/jj_lf0/xin150/", True)
