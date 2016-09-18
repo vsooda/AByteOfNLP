@@ -168,6 +168,7 @@ def convert_file_pinyin(filename):
 
 def is_zero_consonant(string):
     if string.startswith("a") or string.startswith("e") or string.startswith("o"):
+        #print string, " is zero"
         return True
     else:
         return False
@@ -186,26 +187,36 @@ def extract_zero_consonant(filename):
     lines = f.readlines()
     f.close()
     lines = filter_punct(lines)
+    er_text = "儿".decode('utf-8')
     for line in lines:
         line = line.decode('utf-8').strip()
+        index = line.find(er_text)
+        if index != -1:
+            #print "ecape er.... ", line
+            continue
         han_pinyin = pinyin.get(line, ' ')
-        if is_zero_consonant(han_pinyin):
-            print line
-        #pinyins = han_pinyin.split(" ")
-        #count = 0
-        #flag = 1
-        #for py_str in pinyins:
-        #    #if is_zero_consonant(py_str):
-        #    if flag == 1:
-        #        flag = 0
-        #        if is_modal(py_str):
-        #            count = count + 1
-        #    if py_str == ',':
-        #        #print "biao dian........"
-        #        flag = 1
-
-        #if count > 0:
+        #if is_zero_consonant(han_pinyin):
         #    print line
+        pinyins = han_pinyin.split(" ")
+        count = 0
+        flag = 1
+        #print han_pinyin
+        for py_str in pinyins:
+            if is_zero_consonant(py_str):
+                count = count + 1
+            #if flag == 1:
+            #    flag = 0
+            #    if is_modal(py_str):
+            #        count = count + 1
+            #if py_str == ',':
+            #    #print "biao dian........"
+            #    flag = 1
+
+        if count > 1 and len(line) < 40:
+            #print line, count
+            print line
+        #else:
+        #    print "---------------"
 
 
 
