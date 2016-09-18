@@ -51,15 +51,18 @@ def extract_conversation_text(text_file):
     for line in lines:
         line = line.decode('utf-8').strip().replace('“', '"').replace('”', '"')
         line = strQ2B(line)
-        if len(line) < 10:
+        if len(line) < 25:
             continue
+
         match = dialogPattern.match(line)
         if match:
             match_str = match.group()
             match_str = match_str.replace('"', '').replace('。', '.').replace('？', '?').replace('，', ',').replace('！', '!')
+            sentences = split_sentence(match_str)
             #print match_str, len(match_str)
-            if len(match_str) > 10 and len(match_str) < 30:
-                converstion_lines.append(match_str)
+            for sentence in sentences:
+                if len(sentence) > 20 and len(sentence) < 55:
+                    converstion_lines.append(sentence)
     ftext.close()
     return converstion_lines
 
@@ -536,6 +539,22 @@ def split_with_dilimite(lines, delimite):
             sentences = sentences + substrings
     return sentences
 
+def split_sentence(line):
+    period_delimite = '。'.decode('utf-8')
+    exclamation_delimite = '！'.decode('utf-8')
+    interrogation_delimite = '？'.decode('utf-8')
+    en_exc_delimite = "!".decode('utf-8')
+    en_inter_delimite = "?".decode('utf-8')
+    en_period_delimite = '.'.decode('utf-8')
+    lines = []
+    lines.append(line)
+    sentences = split_with_dilimite(lines, period_delimite)
+    sentences = split_with_dilimite(sentences, exclamation_delimite)
+    sentences = split_with_dilimite(sentences, interrogation_delimite)
+    sentences = split_with_dilimite(sentences, en_exc_delimite)
+    sentences = split_with_dilimite(sentences, en_inter_delimite)
+    sentences = split_with_dilimite(sentences, en_period_delimite)
+    return sentences
 
 def extract_file_sentences(filename):
     fin = open(filename, 'r')
