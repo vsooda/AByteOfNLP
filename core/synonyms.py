@@ -6,9 +6,9 @@ class Synonyms:
     def __init__(self):
         print 'synonyms'
 
-    def constructSynonymsDict(self):
+    def construct_synonyms_dict(self):
         pfile = open('../data/review/tyccl.txt', 'r')
-        synoIndex = open('../data/review/synoindex.txt', 'wb+')
+        syno_index = open('../data/review/synoindex.txt', 'wb+')
         txt = pfile.readlines()
         txt = ''.join(txt)
         txt = txt.strip()
@@ -27,13 +27,13 @@ class Synonyms:
             wordsets = wordsets[1:len(wordsets)]
             for word in wordsets:
                 print '---', word
-                synoIndex.write(word)
+                syno_index.write(word)
                 for sim in wordsets:
                     if word != sim:
-                        synoIndex.write(' ' + sim)
-                synoIndex.write('\n')
+                        syno_index.write(' ' + sim)
+                syno_index.write('\n')
 
-    def readSynonyms(self):
+    def read_synonyms(self):
         pfile = open('../data/review/synoindex.txt', 'r')
         txt = pfile.readlines()
         txt = ''.join(txt)
@@ -44,28 +44,28 @@ class Synonyms:
         #    print words
         return txt_datas
 
-    def constructSynoymsIndex(self):
-        datas = self.readSynonyms()
-        self.synoIndex = {}
+    def construct_synoyms_index(self):
+        datas = self.read_synonyms()
+        self.syno_index = {}
         for words in datas:
             words = words.strip()
             words = words.split(' ')
             #simWords = words[1:len(words)]
             #self.synoIndex[words[0]] = simWords
-            if words[0] not in self.synoIndex:
-                self.synoIndex[words[0]] = []
-            self.synoIndex[words[0]] = self.synoIndex[words[0]] + words
+            if words[0] not in self.syno_index:
+                self.syno_index[words[0]] = []
+            self.syno_index[words[0]] = self.syno_index[words[0]] + words
 
         #for k, v in self.synoIndex.items():
         #    print k
         #    for word in v:
         #        print '---', word
 
-    def querySynoyms(self, word):
-        if word not in self.synoIndex:
+    def query_synoyms(self, word):
+        if word not in self.syno_index:
             return [word]
         else:
-            return self.synoIndex[word]
+            return self.syno_index[word]
 
 
 

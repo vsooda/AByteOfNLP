@@ -8,7 +8,7 @@ Sentiment analysis based on sentiment dictionary.
 
 """
 import numpy as np
-import textprocessing as tp
+import text_processing as tp
 
 # 2. Sentiment dictionary analysis basic function
 # Function of matching adverbs of degree and set weights

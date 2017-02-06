@@ -3,7 +3,7 @@
 #filename: DictSentiment.py
 
 import numpy as np
-import textprocessing as tp
+import text_processing as tp
 
 class DictSentiment:
     def __init__(self):
@@ -52,7 +52,7 @@ class DictSentiment:
             neg_count = negcount
         return [pos_count, neg_count]
 
-    def stopWordFilter(self, words):
+    def stop_word_filter(self, words):
         fil = [word for word in words if word not in self.stopwords and word != ' ']
         return fil
 
@@ -61,7 +61,7 @@ class DictSentiment:
         cuted_review = tp.cut_sentence_2(review)
         for sent in cuted_review:
             seg_sent = tp.segmentation(sent, 'list')
-            #seg_sent = self.stopWordFilter(seg_sent)
+            #seg_sent = self.stop_word_filter(seg_sent)
             sent_words.append(seg_sent)
         return sent_words
 
@@ -118,6 +118,14 @@ class DictSentiment:
         for review in dataset:
             scores = self.single_sentiment_score(review)
             print scores[0], scores[1]
+
+    def get_sentiment_type(self, sentiment_score):
+        if sentiment_score[0] * sentiment_score[1] > 0 or (sentiment_score[0] == 0 and sentiment_score[1] == 0): #同符号，则情绪不明
+            return 0
+        elif sentiment_score[0] > sentiment_score[1]: #正面
+            return 1
+        else:
+            return -1 #负面
 
 if __name__ == '__main__':
     review = tp.get_txt_data('reivew.txt', 'lines')

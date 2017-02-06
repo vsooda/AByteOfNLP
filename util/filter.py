@@ -9,23 +9,24 @@ import re
 '''
 convert the raw sentence to indexs
 '''
-urlPattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
-digitPattern = re.compile('\d+\.?\d*')
+url_pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+digit_pattern = re.compile('\d+\.?\d*')
 
-def urlFilter(contents):
-    contents = re.sub(urlPattern, 'URL', contents)
+def url_filter(contents):
+    contents = re.sub(url_pattern, 'URL', contents)
     #print 'url filtering', contents
     return contents
 
-def spaceFilter(contents):
+def space_filter(contents):
     contents = re.sub('\s+', ' ', contents)
     return contents
 
-def digitFilter(contents):
-    contents = re.sub(digitPattern, 'URL', contents)
+def digit_filter(contents):
+    contents = re.sub(digit_pattern, 'URL', contents)
     return contents
 
 #remove the space which is not between two english word
-def dirtySpaceFilter(contents):
+def dirty_space_filter(contents):
     contents = contents
+
 

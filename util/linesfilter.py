@@ -40,13 +40,13 @@ def linesfilter(postName, commentName, postfix):
             print 'too long ', i
             continue
         text = postTextLines[i]
-        templine = Filter.urlFilter(text)
-        templine = Filter.spaceFilter(templine)
+        templine = Filter.url_filter(text)
+        templine = Filter.space_filter(templine)
         postLineWrite.append(templine + '\n')
 
         text = commentTextLines[i]
-        templine = Filter.urlFilter(text)
-        templine = Filter.spaceFilter(templine)
+        templine = Filter.url_filter(text)
+        templine = Filter.space_filter(templine)
         commentLineWrite.append(templine + '\n')
 
     filteredPostName = postName + postfix

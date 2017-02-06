@@ -2,14 +2,13 @@
 #coding=utf-8
 #filename: search_resource.py
 
-import core.textprocessing as tp
 import math
 
 class ResourcesIndex :
-    def __init__(self):
-        self.resources = tp.get_csv_data('../data/review/resources.csv', 4)
+    def __init__(self, resources):
+        self.resources = resources
 
-    def constructDict(self):
+    def construct_dict(self):
         keywords =  []
         for index, res in self.resources.items():
             for k, words in res.items():
@@ -28,16 +27,27 @@ class ResourcesIndex :
             #print k
         pDict.close()
 
+    def setup_sentenment_type(self, ds):
+        for index, res in self.resources.items():
+            sentiment = res["sentiment"]
+            sentiment_score = ds.get_single_sent_count(sentiment)
+            sent_type = ds.get_sentiment_type(sentiment_score)
+            #print "sent score: ", sentiment_score, sent_type
+            res['sentiment_type'] = sent_type
+
 
     def dump(self):
         for index, res in self.resources.items():
             for k, v in res.items():
-                print k, v
+                if k != 'sentiment_type':
+                    print k, ' '.join(v)
+                else:
+                    print k, v
         print 'dump over'
 
 
     #类型信息不该由这个关键词保存, 关键词只是纯粹的关键词序列
-    def extractResourceKeywords(self):
+    def extract_resource_keywords(self):
         self.keywords = {}
         print 'keywords...'
         for index, res in self.resources.items():
@@ -46,8 +56,8 @@ class ResourcesIndex :
                 if k != 'type' and k != 'sentiment':
                     self.keywords[index] = self.keywords[index] + words
 
-    def countTfidf(self):
-        self.extractResourceKeywords()
+    def count_tfidf(self):
+        self.extract_resource_keywords()
         self.keywordWeight = {}
         for index, keywords in self.keywords.items():
             keyweights = {}
@@ -93,35 +103,35 @@ class ResourcesIndex :
 
 
     #format: word: {"id", "weight"}
-    def constructInvertIndex(self):
-        self.invertIndex = {}
+    def construct_invert_index(self):
+        self.invert_index = {}
         for index, res in self.resources.items():
             for k, words in res.items():
                 for v in words:
-                    if not v in self.invertIndex:
-                        self.invertIndex[v] = []
+                    if not v in self.invert_index:
+                        self.invert_index[v] = []
                     item = {
                         "docid" : index,
                         "weight": 1.0
                     }
-                    self.invertIndex[v].append(item)
+                    self.invert_index[v].append(item)
 
-    def constructInvertIndexTfidf(self):
-        self.countTfidf()
-        self.invertIndex = {}
+    def construct_invert_index_tfidf(self):
+        self.count_tfidf()
+        self.invert_index = {}
         for index, keywords in self.keywords.items():
             for word in keywords:
-                if not word in self.invertIndex:
-                    self.invertIndex[word] = []
+                if not word in self.invert_index:
+                    self.invert_index[word] = []
                 item = {
                     "docid" : index,
                     "weight" : self.keywordWeight[index][word]
                 }
-                self.invertIndex[word].append(item)
+                self.invert_index[word].append(item)
 
 
-    def invertIndexDump(self):
-        for word, indexs in self.invertIndex.items():
+    def invert_index_dump(self):
+        for word, indexs in self.invert_index.items():
             print word
             for index in indexs:
                 print '...', index['docid'], index['weight']
@@ -129,13 +139,11 @@ class ResourcesIndex :
 
     #input: keywords
     #output: top 5 resouces item name, and their weight
-    def searchItem(self, keywords):
+    def search_item(self, keywords, sentiment_type=0):
         scores = {}
         for k in keywords:
-            #print 'searching ', k
-            if k in self.invertIndex:
-                #print 'invert key ', k
-                items = self.invertIndex[k]
+            if k in self.invert_index:
+                items = self.invert_index[k]
                 for item in items:
                     docid = item['docid']
                     weight = item['weight']
@@ -143,23 +151,14 @@ class ResourcesIndex :
                         scores[docid] = 0
                     scores[docid] = scores[docid] + weight
                     #print weight
+        if sentiment_type != 0:
+            for docid, score in scores.items():
+                doc_sent_type = self.resources[docid]['sentiment_type']
+                if doc_sent_type * sentiment_type < 0:
+                    scores[docid] = scores[docid] - 1
+                elif doc_sent_type == sentiment_type:
+                    scores[docid] = scores[docid] + 0.2
 
-        print len(scores), ' results'
-        result = len(scores)
-        if result <= 0:
-            print 'no match'
-            return
-        #for docid, score in scores.items():
-        #    print docid, self.resources[docid]['name'], score
-
-        #after sorted, the dict become a list
-        scores = sorted(scores.iteritems(), key=lambda d:d[1], reverse=True)
-        for score in scores:
-            print score[0], self.resources[score[0]]['name'][0], score[1]
-            otherKeywords = self.resources[score[0]]['other']
-            for word in otherKeywords:
-                print '--- ', word
-
-
+        return scores
 
 

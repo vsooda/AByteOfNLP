@@ -135,7 +135,7 @@ def segment_chinese_single(seglist):
         if len(word) > 1:
             is_all_chinese = True
             for w in word:
-                print "www: ", w
+                #print "www: ", w
                 if not is_chinese(w):
                     is_all_chinese = False
                     break
@@ -147,7 +147,7 @@ def segment_chinese_single(seglist):
                 temp = [word]
         else:
             temp = [word]
-        print word, " segword: ", temp, " ", temp[0]
+        #print word, " segword: ", temp, " ", temp[0]
         res = res + temp
     return res
 

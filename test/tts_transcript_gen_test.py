@@ -1,19 +1,8 @@
 #! /usr/bin/env python2.7
 #coding=utf-8
 #filename: tts_transcript_gen_test.py
-import sys
-import  _init_paths
-import jieba
-import time
 from config import cfg
-import os
-import glob
-from os import listdir
-from os.path import isfile, join
-#import pinyin
-import util.zh_pinyin as pinyin
-import re
-import random
+import _init_paths
 from util.tts_transcript_gen import *
 
 

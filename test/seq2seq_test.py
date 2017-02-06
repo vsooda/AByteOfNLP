@@ -10,6 +10,9 @@ from config import cfg
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 from  keras_theano.seq2seq import seq2seq, batchSeq2seq
+from easydict import EasyDict
+from util.linesfilter import linesfilter
+import util.filter as Filter
 
 #all return with list format
 def readDataFile(vocabName, postIndexName, commentIndexName):
@@ -91,12 +94,34 @@ def cache_driver():
     vocab, postIndexs, commentIndexs = readDataFile(vocabfile, postfile, commentfile)
     seq_driver(vocab, postIndexs, commentIndexs)
 
+def stc_do_filter():
+    print cfg.ROOT_DIR
+    stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
+    postFile = os.path.join(stcpath, cfg.POST_FILENAME)
+    commentFile = os.path.join(stcpath, cfg.COMMENT_FILENAME)
+    filterPostfix = cfg.FILTER_POSTFIX
+    print stcpath
+    print postFile
+    print commentFile
+
+    linesfilter(postFile, commentFile, filterPostfix)
+
+def cut2index_test():
+    stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
+    postFile = os.path.join(stcpath, cfg.POST_FILENAME)
+    commentFile = os.path.join(stcpath, cfg.COMMENT_FILENAME)
+    postFileFiltered = postFile + cfg.FILTER_POSTFIX
+    commentFileFiltered = commentFile + cfg.FILTER_POSTFIX
+    print postFileFiltered
+    cut2index(postFileFiltered, commentFileFiltered)
+
 def total_test():
     stcpath = os.path.join(cfg.ROOT_DIR, cfg.DATAPATH)
     postFile = os.path.join(stcpath, cfg.POST_FILENAME)
     commentFile = os.path.join(stcpath, cfg.COMMENT_FILENAME)
     postFileFiltered = postFile + cfg.FILTER_POSTFIX
     commentFileFiltered = commentFile + cfg.FILTER_POSTFIX
+    stc_do_filter()
     vocab, postIndexs, commentIndexs = cut2index(postFileFiltered, commentFileFiltered)
     postIndexs = postIndexs[1:100]
     commentIndexs = commentIndexs[1:100]
@@ -104,6 +129,7 @@ def total_test():
 
 if __name__ == "__main__":
     #pickle_test()
-    cache_driver()
-    #total_test()
+    #cut2index_test()
+    #cache_driver()
+    total_test()
 
