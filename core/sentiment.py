@@ -157,7 +157,7 @@ if __name__ == '__main__':
     ishdict = tp.get_txt_data('../data/review/ish.txt', 'lines')
     insufficientdict = tp.get_txt_data('../data/review/insufficiently.txt', 'lines')
     inversedict = tp.get_txt_data('../data/review/inverse.txt', 'lines')
-    review = tp.get_txt_data('reivew.txt', 'lines')
+    review = tp.get_excel_data("../data/review/review_set.xlsx", 1, 1, "data")
 
     print len(review)
     print single_review_sentiment_score(review[0])

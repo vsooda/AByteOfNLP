@@ -177,3 +177,13 @@ def seg_fil_senti_excel(filepath, sheetnum, colnum):
 
     # Return filtered segment reviews
     return seg_fil_senti_result
+
+if __name__ == '__main__':
+    review = get_excel_data("../data/review/review_set.xlsx", 1, 1, "data")
+    review_txt = open('reivew.txt', 'wb+')
+    for r in review:
+        print r
+        review_txt.write(r)
+        review_txt.write('\n')
+
+    review_txt.close()
